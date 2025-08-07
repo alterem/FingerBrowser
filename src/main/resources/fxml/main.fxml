@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.basis.fingerbrowser.controller.MainController"
+            prefHeight="700.0" prefWidth="1000.0">
+
+    <top>
+        <ToolBar>
+            <Button text="新建配置" onAction="#handleNewProfile"/>
+            <Button text="导入配置" onAction="#handleImportProfile"/>
+            <Button text="导出配置" onAction="#handleExportProfile"/>
+            <Separator orientation="VERTICAL"/>
+            <Button text="启动所选" onAction="#handleLaunchSelected"/>
+            <Button text="停止所选" onAction="#handleStopSelected"/>
+            <Separator orientation="VERTICAL"/>
+            <Button text="刷新列表" onAction="#handleRefreshList"/>
+            <Separator orientation="VERTICAL"/>
+            <Label text="浏览器路径:"/>
+            <TextField fx:id="browserPathField" prefWidth="200"/>
+            <Button text="浏览..." onAction="#handleBrowseBrowserPath"/>
+        </ToolBar>
+    </top>
+
+    <left>
+        <VBox spacing="10.0" prefWidth="250.0">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <Label text="浏览器配置" style="-fx-font-weight: bold"/>
+            <TextField fx:id="searchField" promptText="搜索..."/>
+            <HBox spacing="5.0">
+                <Button text="启动" onAction="#handleLaunchSelected" prefWidth="75.0"/>
+                <Button text="编辑" onAction="#handleEditProfile" prefWidth="75.0"/>
+                <Button text="删除" onAction="#handleDeleteProfile" prefWidth="75.0"/>
+            </HBox>
+            <ListView fx:id="profileList" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="5.0">
+                <Label text="共"/>
+                <Label fx:id="profileCountLabel" text="0"/>
+                <Label text="个配置文件"/>
+                <Label text="运行中:"/>
+                <Label fx:id="runningCountLabel" text="0"/>
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <TabPane fx:id="detailsTabPane">
+            <Tab text="配置详情" closable="false">
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="10.0">
+                        <padding>
+                            <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+                        </padding>
+                        <HBox spacing="10.0">
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                <Label text="名称"/>
+                                <TextField fx:id="nameField" editable="false"/>
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                <Label text="创建时间"/>
+                                <TextField fx:id="createdAtField" editable="false"/>
+                            </VBox>
+                        </HBox>
+
+                        <Label text="浏览器信息" style="-fx-font-weight: bold"/>
+                        <GridPane hgap="10.0" vgap="10.0">
+                            <Label text="User-Agent:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="userAgentField" editable="false"
+                                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                            <Label text="平台:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextField fx:id="platformField" editable="false"
+                                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <Label text="语言:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <TextField fx:id="languageField" editable="false"
+                                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                            <Label text="时区:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <TextField fx:id="timezoneField" editable="false"
+                                       GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                            <Label text="分辨率:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <TextField fx:id="resolutionField" editable="false"
+                                       GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        </GridPane>
+
+                        <Label text="指纹保护设置" style="-fx-font-weight: bold"/>
+                        <GridPane hgap="10.0" vgap="10.0">
+                            <Label text="WebRTC保护:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="webrtcField" editable="false"
+                                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                            <Label text="Canvas保护:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextField fx:id="canvasField" editable="false"
+                                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <Label text="字体保护:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <TextField fx:id="fontField" editable="false"
+                                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        </GridPane>
+
+                        <Label text="网络设置" style="-fx-font-weight: bold"/>
+                        <GridPane hgap="10.0" vgap="10.0">
+                            <Label text="代理类型:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="proxyTypeField" editable="false"
+                                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                            <Label text="代理服务器:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextField fx:id="proxyHostField" editable="false"
+                                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <Label text="代理端口:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <TextField fx:id="proxyPortField" editable="false"
+                                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                            <Label text="认证:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <TextField fx:id="proxyAuthField" editable="false"
+                                       GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        </GridPane>
+
+                        <Label text="备注" style="-fx-font-weight: bold"/>
+                        <TextArea fx:id="notesArea" editable="false" prefHeight="100.0" wrapText="true"/>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+        </TabPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="10.0">
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+            </padding>
+            <Label text="状态:"/>
+            <Label fx:id="statusLabel" text="就绪"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Hyperlink text="关于" onAction="#handleAbout"/>
+        </HBox>
+    </bottom>
+</BorderPane>
