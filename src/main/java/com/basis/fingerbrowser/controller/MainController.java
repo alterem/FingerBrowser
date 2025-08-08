@@ -106,8 +106,13 @@ public class MainController {
 
         String defaultBrowserPath = findDefaultBrowserPath();
         browserPathField.setText(defaultBrowserPath);
-        browserService = new BrowserService(defaultBrowserPath, appDataDir + File.separator + BROWSER_DATA_DIR_NAME);
-        log.info("Browser service initialized. Default browser path: {}", defaultBrowserPath);
+        try {
+            browserService = new BrowserService(defaultBrowserPath, appDataDir + File.separator + BROWSER_DATA_DIR_NAME);
+            log.info("Browser service initialized. Default browser path: {}", defaultBrowserPath);
+        } catch (RuntimeException e) {
+            log.error("Failed to initialize browser service", e);
+            showAlert("初始化错误", "无法初始化浏览器服务: " + e.getMessage());
+        }
     }
 
     private void setupBindings() {

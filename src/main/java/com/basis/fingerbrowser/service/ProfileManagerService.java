@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,8 @@ import java.util.*;
 
 public class ProfileManagerService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProfileManagerService.class);
+    
     private final String profilesDirectory;
     private final ObservableList<BrowserProfile> profiles;
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
@@ -50,10 +54,9 @@ public class ProfileManagerService {
     /**
      * 添加新配置文件
      */
-    public BrowserProfile addProfile(BrowserProfile profile) {
+    public void addProfile(BrowserProfile profile) {
         profiles.add(profile);
         saveProfile(profile);
-        return profile;
     }
 
     /**
@@ -72,17 +75,16 @@ public class ProfileManagerService {
     /**
      * 删除配置文件
      */
-    public boolean deleteProfile(String profileId) {
+    public void deleteProfile(String profileId) {
         // 从内存中移除
         profiles.removeIf(p -> p.getId().equals(profileId));
 
         // 从磁盘中删除
         try {
             Path profilePath = Paths.get(profilesDirectory, profileId + ".json");
-            return Files.deleteIfExists(profilePath);
+            Files.deleteIfExists(profilePath);
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            log.error("Failed to delete profile file for ID: {}", profileId, e);
         }
     }
 
@@ -107,7 +109,7 @@ public class ProfileManagerService {
             objectMapper.writeValue(new File(filePath), profileToMap(profile));
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to save profile '{}' (ID: {})", profile.getName(), profile.getId(), e);
         }
     }
 
@@ -136,11 +138,11 @@ public class ProfileManagerService {
                             BrowserProfile profile = mapToProfile(profileMap);
                             profiles.add(profile);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            log.error("Failed to load profile from file: {}", path, e);
                         }
                     });
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load profiles from directory: {}", profilesDirectory, e);
         }
     }
 
@@ -164,7 +166,7 @@ public class ProfileManagerService {
                                 importedProfiles.add(profile);
                                 saveProfile(profile);
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                log.error("Failed to import profile from file: {}", path, e);
                             }
                         });
             } else {
@@ -176,7 +178,7 @@ public class ProfileManagerService {
                 saveProfile(profile);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to import profile(s) from: {}", file.getPath(), e);
         }
 
         return importedProfiles;
@@ -191,7 +193,7 @@ public class ProfileManagerService {
             objectMapper.writeValue(destination, profileToMap(profile));
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to export profile '{}' to: {}", profile.getName(), destination.getPath(), e);
             return false;
         }
     }
@@ -219,7 +221,7 @@ public class ProfileManagerService {
             try {
                 Files.createDirectories(path);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Failed to create profiles directory: {}", dirPath, e);
             }
         }
     }
