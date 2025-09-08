@@ -50,15 +50,30 @@ jobs:
 
     - name: Create native package (Windows)
       if: matrix.platform == 'windows'
-      run: mvn jpackage:jpackage@win
+      run: |
+        if [ ! -d "target/app" ]; then
+          echo "Runtime image not found, creating it first..."
+          mvn javafx:jlink
+        fi
+        mvn jpackage:jpackage@win
 
     - name: Create native package (macOS)
       if: matrix.platform == 'macos'
-      run: mvn jpackage:jpackage@mac
+      run: |
+        if [ ! -d "target/app" ]; then
+          echo "Runtime image not found, creating it first..."
+          mvn javafx:jlink
+        fi
+        mvn jpackage:jpackage@mac
 
     - name: Create native package (Linux)
       if: matrix.platform == 'linux'
-      run: mvn jpackage:jpackage@linux
+      run: |
+        if [ ! -d "target/app" ]; then
+          echo "Runtime image not found, creating it first..."
+          mvn javafx:jlink
+        fi
+        mvn jpackage:jpackage@linux
 
     - name: Find package file (Windows)
       if: matrix.platform == 'windows'
