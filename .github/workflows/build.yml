@@ -43,7 +43,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
 
     - name: Build with Maven
-      run: mvn clean compile
+      run: mvn clean javafx:compile
 
     - name: Create runtime image
       run: mvn javafx:jlink
