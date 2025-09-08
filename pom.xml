@@ -177,6 +177,12 @@
                         <winShortcut>true</winShortcut>
                         <winMenu>true</winMenu>
                     </winOptions>
+                    <linuxOptions>
+                        <linuxPackageName>fingerprintbrowser</linuxPackageName>
+                        <linuxDebMaintainer>basis@example.com</linuxDebMaintainer>
+                        <linuxMenuGroup>Utility</linuxMenuGroup>
+                        <linuxShortcut>true</linuxShortcut>
+                    </linuxOptions>
                 </configuration>
                 <executions>
                     <execution>
@@ -188,6 +194,13 @@
                     </execution>
                     <execution>
                         <id>win</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>linux</id>
                         <phase>package</phase>
                         <goals>
                             <goal>jpackage</goal>
