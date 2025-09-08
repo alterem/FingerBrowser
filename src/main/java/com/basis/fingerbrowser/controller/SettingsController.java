@@ -1,6 +1,7 @@
 package com.basis.fingerbrowser.controller;
 
 import com.basis.fingerbrowser.service.ThemeService;
+import com.basis.fingerbrowser.util.DialogUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -21,7 +22,7 @@ import java.util.prefs.Preferences;
 public class SettingsController implements Initializable {
 
     private static final Logger logger = LoggerFactory.getLogger(SettingsController.class);
-    
+
     // 偏好设置键 - 与MainController保持一致
     private static final String BROWSER_PATH_KEY = "browser_path";
     private static final String AUTO_SAVE_KEY = "auto_save";
@@ -32,7 +33,6 @@ public class SettingsController implements Initializable {
     @FXML private ComboBox<String> themeComboBox;
     @FXML private ComboBox<String> languageComboBox;
     @FXML private TextField browserPathField;
-    @FXML private ComboBox<String> defaultProfileComboBox;
     @FXML private CheckBox autoSaveCheckBox;
     @FXML private CheckBox checkUpdatesCheckBox;
 
@@ -48,18 +48,18 @@ public class SettingsController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         logger.info("Initializing SettingsController");
-        
+
         // 初始化服务
         themeService = ThemeService.getInstance();
         // 使用与MainController相同的Preferences节点
         preferences = Preferences.userNodeForPackage(com.basis.fingerbrowser.controller.MainController.class);
-        
+
         // 设置控件监听器
         setupControlListeners();
-        
+
         // 加载当前设置
         loadCurrentSettings();
-        
+
         logger.info("SettingsController initialized successfully");
     }
 
@@ -83,10 +83,10 @@ public class SettingsController implements Initializable {
     private void setupControlListeners() {
         // 主题选择监听器
         themeComboBox.setOnAction(e -> markAsChanged());
-        
+
         // 浏览器路径监听器
         browserPathField.textProperty().addListener((observable, oldValue, newValue) -> markAsChanged());
-        
+
         // 其他设置监听器
         autoSaveCheckBox.setOnAction(e -> markAsChanged());
         checkUpdatesCheckBox.setOnAction(e -> markAsChanged());
@@ -120,14 +120,14 @@ public class SettingsController implements Initializable {
             // 加载其他设置
             autoSaveCheckBox.setSelected(preferences.getBoolean(AUTO_SAVE_KEY, true));
             checkUpdatesCheckBox.setSelected(preferences.getBoolean(CHECK_UPDATES_KEY, false));
-            
+
             // 加载语言设置
             String language = preferences.get(LANGUAGE_KEY, "简体中文");
             languageComboBox.setValue(language);
 
             // 重置变更标记
             hasChanges = false;
-            
+
             logger.debug("Current settings loaded successfully");
         } catch (Exception e) {
             logger.error("Failed to load current settings", e);
@@ -143,7 +143,7 @@ public class SettingsController implements Initializable {
         try {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("选择浏览器可执行文件");
-            
+
             // 设置文件过滤器
             FileChooser.ExtensionFilter allFiles = new FileChooser.ExtensionFilter("所有文件", "*.*");
             FileChooser.ExtensionFilter appFiles = new FileChooser.ExtensionFilter("应用程序", "*.app", "*.exe");
@@ -211,9 +211,9 @@ public class SettingsController implements Initializable {
 
             // 显示成功消息
             showInfoAlert("设置已保存", "您的设置已成功保存并应用。");
-            
+
             logger.info("Settings applied successfully");
-            
+
             // 关闭设置窗口
             closeWindow();
         } catch (Exception e) {
@@ -228,11 +228,7 @@ public class SettingsController implements Initializable {
     @FXML
     private void handleCancel() {
         if (hasChanges) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("确认取消");
-            alert.setHeaderText("您有未保存的更改");
-            alert.setContentText("是否确定要取消并放弃所有更改？");
-
+            Alert alert = DialogUtil.createConfirmationAlert("确认取消", "您有未保存的更改", "是否确定要取消并放弃所有更改？");
             ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
             if (result == ButtonType.OK) {
                 closeWindow();
@@ -247,11 +243,7 @@ public class SettingsController implements Initializable {
      */
     @FXML
     private void handleResetToDefaults() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("重置设置");
-        alert.setHeaderText("重置为默认设置");
-        alert.setContentText("这将重置所有设置为默认值。是否继续？");
-
+        Alert alert = DialogUtil.createConfirmationAlert("重置设置", "重置为默认设置", "这将重置所有设置为默认值。是否继续？");
         ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
         if (result == ButtonType.OK) {
             resetToDefaults();
@@ -265,10 +257,10 @@ public class SettingsController implements Initializable {
         try {
             // 重置主题为浅色（新的默认值）
             themeComboBox.setValue("浅色主题");
-            
+
             // 重置浏览器路径
             browserPathField.setText("");
-            
+
             // 重置其他设置
             autoSaveCheckBox.setSelected(true);
             checkUpdatesCheckBox.setSelected(false);
@@ -297,10 +289,7 @@ public class SettingsController implements Initializable {
      * 显示信息提示框
      */
     private void showInfoAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+        Alert alert = DialogUtil.createInformationAlert(title, message);
         alert.showAndWait();
     }
 
@@ -308,10 +297,7 @@ public class SettingsController implements Initializable {
      * 显示错误提示框
      */
     private void showErrorAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+        Alert alert = DialogUtil.createErrorAlert(title, message);
         alert.showAndWait();
     }
 

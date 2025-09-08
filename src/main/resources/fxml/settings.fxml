@@ -83,21 +83,6 @@
                         <Label text="选择要使用的浏览器可执行文件（如 Chrome、Firefox 等）" styleClass="setting-description"/>
                     </VBox>
 
-                    <!-- 默认配置设置（预留） -->
-                    <VBox spacing="8.0" styleClass="setting-item">
-                        <Label text="默认配置" styleClass="setting-label"/>
-                        <HBox spacing="10.0" alignment="CENTER_LEFT">
-                            <ComboBox fx:id="defaultProfileComboBox" prefWidth="200.0" disable="true">
-                                <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="无"/>
-                                        <String fx:value="自动选择"/>
-                                    </FXCollections>
-                                </items>
-                            </ComboBox>
-                            <Label text="设置启动时默认选择的配置（即将推出）" styleClass="setting-description"/>
-                        </HBox>
-                    </VBox>
                 </VBox>
 
                 <Separator/>

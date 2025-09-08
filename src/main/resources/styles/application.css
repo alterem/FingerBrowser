@@ -376,9 +376,34 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, 0, 10);
 }
 
-.light-theme .dialog-pane {
+.dialog-pane.light-theme {
     -fx-background-color: #ffffff;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0, 0, 10);
+}
+
+.dialog-pane.light-theme .label {
+    -fx-text-fill: #1f2328;
+}
+
+.dialog-pane.light-theme .button {
+    -fx-background-color: #f6f8fa;
+    -fx-border-color: #d0d7de;
+    -fx-text-fill: #1f2328;
+}
+
+.dialog-pane.light-theme .button:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #8c959f;
+}
+
+.dialog-pane.light-theme .button:pressed {
+    -fx-background-color: #e1e4e8;
+}
+
+.dialog-pane.light-theme .button:default {
+    -fx-background-color: linear-gradient(to bottom, #0969da, #0860ca);
+    -fx-border-color: #0969da;
+    -fx-text-fill: white;
 }
 
 /* 特殊效果 */

@@ -1,6 +1,7 @@
 package com.basis.fingerbrowser.service;
 
 import javafx.scene.Scene;
+import javafx.scene.control.DialogPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +167,7 @@ public class ThemeService {
     /**
      * 应用主题到指定场景
      */
-    private void applyThemeToScene(Scene scene, String theme) {
+    public void applyThemeToScene(Scene scene, String theme) {
         try {
             // 移除现有的主题样式类
             scene.getRoot().getStyleClass().removeAll("dark-theme", "light-theme");
@@ -183,6 +184,8 @@ public class ThemeService {
             logger.error("Failed to apply theme to scene", e);
         }
     }
+
+    
 
     /**
      * 从偏好设置加载保存的主题
