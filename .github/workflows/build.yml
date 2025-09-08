@@ -45,34 +45,22 @@ jobs:
     - name: Build project
       run: mvn clean install -DskipTests
 
-    - name: Create runtime image
-      run: mvn javafx:jlink
-
     - name: Create native package (Windows)
       if: matrix.platform == 'windows'
       run: |
-        if [ ! -d "target/app" ]; then
-          echo "Runtime image not found, creating it first..."
-          mvn javafx:jlink
-        fi
+        mvn javafx:jlink
         mvn jpackage:jpackage@win
 
     - name: Create native package (macOS)
       if: matrix.platform == 'macos'
       run: |
-        if [ ! -d "target/app" ]; then
-          echo "Runtime image not found, creating it first..."
-          mvn javafx:jlink
-        fi
+        mvn javafx:jlink
         mvn jpackage:jpackage@mac
 
     - name: Create native package (Linux)
       if: matrix.platform == 'linux'
       run: |
-        if [ ! -d "target/app" ]; then
-          echo "Runtime image not found, creating it first..."
-          mvn javafx:jlink
-        fi
+        mvn javafx:jlink
         mvn jpackage:jpackage@linux
 
     - name: Find package file (Windows)
