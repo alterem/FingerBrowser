@@ -185,27 +185,7 @@
                     </linuxOptions>
                 </configuration>
                 <executions>
-                    <execution>
-                        <id>mac</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jpackage</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>win</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jpackage</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>linux</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jpackage</goal>
-                        </goals>
-                    </execution>
+                    <!-- 移除自动执行，改为手动调用 -->
                 </executions>
             </plugin>
         </plugins>
