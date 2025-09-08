@@ -1,289 +1,817 @@
-/* 主题颜色 */
-.root {
-    -fx-base: #f4f4f4;
-    -fx-accent: #4D90FE;
-    -fx-default-button: #5FB878;
-    -fx-focus-color: #4D90FE;
-    -fx-faint-focus-color: #4D90FE22;
-    -fx-selection-bar: #4D90FE;
+/* ==============================================
+   现代化主题系统 - 完全重写版本
+   ============================================== */
+
+/* 深色主题（默认）*/
+.root, .dark-theme {
+    -fx-base: #1a1a1a;
+    -fx-background: #0d1117;
+    -fx-control-inner-background: #21262d;
+    -fx-accent: #58a6ff;
+    -fx-default-button: #58a6ff;
+    -fx-focus-color: #58a6ff;
+    -fx-faint-focus-color: #58a6ff33;
+    -fx-selection-bar: #58a6ff;
+    -fx-text-fill: #e6edf3;
+    -fx-text-base-color: #e6edf3;
 }
 
-/* 工具栏样式 */
+/* 浅色主题 */
+.light-theme {
+    -fx-base: #ffffff;
+    -fx-background: #ffffff;
+    -fx-control-inner-background: #f6f8fa;
+    -fx-accent: #0969da;
+    -fx-default-button: #0969da;
+    -fx-focus-color: #0969da;
+    -fx-faint-focus-color: #0969da33;
+    -fx-selection-bar: #0969da;
+    -fx-text-fill: #1f2328;
+    -fx-text-base-color: #1f2328;
+}
+
+/* ==============================================
+   通用组件样式
+   ============================================== */
+
+/* 工具栏 */
 .tool-bar {
-    -fx-background-color: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
-    -fx-border-color: #c8c8c8;
+    -fx-background-color: linear-gradient(to bottom, #21262d, #161b22);
+    -fx-border-color: #30363d;
     -fx-border-width: 0 0 1 0;
+    -fx-padding: 10;
+    -fx-spacing: 8;
 }
 
-/* 按钮样式 */
+.light-theme .tool-bar {
+    -fx-background-color: linear-gradient(to bottom, #f6f8fa, #eaeef2);
+    -fx-border-color: #d0d7de;
+}
+
+/* 按钮 */
 .button {
-    -fx-background-color: #ffffff;
-    -fx-border-color: #c8c8c8;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
-    -fx-padding: 5 10 5 10;
+    -fx-background-color: #21262d;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 16;
+    -fx-text-fill: #e6edf3;
+    -fx-font-weight: 500;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 1);
 }
 
 .button:hover {
-    -fx-background-color: #f0f0f0;
-    -fx-border-color: #a0a0a0;
+    -fx-background-color: #30363d;
+    -fx-border-color: #484f58;
 }
 
 .button:pressed {
-    -fx-background-color: #e0e0e0;
-    -fx-border-color: #909090;
+    -fx-background-color: #161b22;
 }
 
 .button:default {
-    -fx-background-color: #5FB878;
-    -fx-border-color: #4D9963;
+    -fx-background-color: linear-gradient(to bottom, #58a6ff, #4184e4);
+    -fx-border-color: #58a6ff;
     -fx-text-fill: white;
 }
 
-.button:default:hover {
-    -fx-background-color: #6FCC88;
+.light-theme .button {
+    -fx-background-color: #f6f8fa;
+    -fx-border-color: #d0d7de;
+    -fx-text-fill: #1f2328;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 2, 0, 0, 1);
 }
 
-.button:default:pressed {
-    -fx-background-color: #4D9963;
+.light-theme .button:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #8c959f;
 }
 
-/* 列表视图样式 */
-.list-view {
+.light-theme .button:pressed {
+    -fx-background-color: #e1e4e8;
+}
+
+.light-theme .button:default {
+    -fx-background-color: linear-gradient(to bottom, #0969da, #0860ca);
+    -fx-border-color: #0969da;
+    -fx-text-fill: white;
+}
+
+/* 文本输入框 */
+.text-field, .text-area, .password-field {
+    -fx-background-color: #0d1117;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-text-fill: #e6edf3;
+    -fx-prompt-text-fill: #7d8590;
+}
+
+.text-field:focused, .text-area:focused, .password-field:focused {
+    -fx-border-color: #58a6ff;
+    -fx-effect: dropshadow(gaussian, rgba(88,166,255,0.3), 4, 0, 0, 0);
+}
+
+.light-theme .text-field, 
+.light-theme .text-area, 
+.light-theme .password-field {
     -fx-background-color: #ffffff;
-    -fx-border-color: #c8c8c8;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
+    -fx-border-color: #d0d7de;
+    -fx-text-fill: #1f2328;
+    -fx-prompt-text-fill: #656d76;
+}
+
+.light-theme .text-field:focused, 
+.light-theme .text-area:focused, 
+.light-theme .password-field:focused {
+    -fx-border-color: #0969da;
+    -fx-effect: dropshadow(gaussian, rgba(9,105,218,0.3), 4, 0, 0, 0);
+}
+
+/* 标签 */
+.label {
+    -fx-text-fill: #e6edf3;
+}
+
+.label.title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e6edf3;
+}
+
+.label.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 15 0 8 0;
+    -fx-text-fill: #c9d1d9;
+}
+
+.light-theme .label {
+    -fx-text-fill: #1f2328;
+}
+
+.light-theme .label.title {
+    -fx-text-fill: #1f2328;
+}
+
+.light-theme .label.section-title {
+    -fx-text-fill: #656d76;
+}
+
+/* 列表视图 */
+.list-view {
+    -fx-background-color: #0d1117;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4;
 }
 
 .list-view .list-cell {
-    -fx-padding: 5 8 5 8;
-}
-
-.list-view .list-cell:odd {
-    -fx-background-color: #f9f9f9;
+    -fx-padding: 8 12;
+    -fx-text-fill: #e6edf3;
+    -fx-background-color: transparent;
 }
 
 .list-view .list-cell:selected {
-    -fx-background-color: #4D90FE;
+    -fx-background-color: #58a6ff;
     -fx-text-fill: white;
 }
 
 .list-view .list-cell:hover:filled {
-    -fx-background-color: #edf5fd;
+    -fx-background-color: #30363d;
+    -fx-text-fill: #e6edf3;
 }
 
-.list-view .list-cell:hover:filled:selected {
-    -fx-background-color: #4D90FE;
+.light-theme .list-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d0d7de;
+}
+
+.light-theme .list-view .list-cell {
+    -fx-text-fill: #1f2328;
+}
+
+.light-theme .list-view .list-cell:selected {
+    -fx-background-color: #0969da;
     -fx-text-fill: white;
 }
 
-/* 标签页样式 */
-.tab-pane {
-    -fx-tab-min-width: 100px;
+.light-theme .list-view .list-cell:hover:filled {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #1f2328;
 }
 
-.tab {
-    -fx-background-radius: 3 3 0 0;
-    -fx-padding: 3 15 3 15;
+/* 复选框 */
+.check-box {
+    -fx-text-fill: #e6edf3;
+    -fx-font-weight: 500;
 }
 
-.tab:selected {
-    -fx-background-color: #ffffff;
-}
-
-.tab-pane .tab-header-area .tab-header-background {
-    -fx-background-color: #f0f0f0;
-    -fx-border-color: #c8c8c8;
-    -fx-border-width: 0 0 1 0;
-}
-
-/* 文本输入框样式 */
-.text-field, .text-area, .password-field {
-    -fx-border-color: #c8c8c8;
-    -fx-background-color: #ffffff;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
-    -fx-padding: 5;
-}
-
-.text-field:focused, .text-area:focused, .password-field:focused {
-    -fx-border-color: #4D90FE;
-}
-
-/* 复选框样式 */
 .check-box .box {
-    -fx-border-color: #c8c8c8;
-    -fx-background-color: #ffffff;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
+    -fx-border-color: #30363d;
+    -fx-background-color: #0d1117;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #58a6ff;
+    -fx-border-color: #58a6ff;
 }
 
 .check-box:selected .mark {
     -fx-background-color: white;
 }
 
-.check-box:selected .box {
-    -fx-background-color: #4D90FE;
-    -fx-border-color: #4D90FE;
+.light-theme .check-box {
+    -fx-text-fill: #1f2328;
 }
 
-/* 滑块样式 */
-.slider .track {
-    -fx-background-color: #e0e0e0;
-    -fx-pref-height: 8;
-}
-
-.slider .thumb {
-    -fx-background-color: #4D90FE;
-    -fx-pref-width: 16;
-    -fx-pref-height: 16;
-}
-
-/* 下拉菜单样式 */
-.combo-box {
-    -fx-border-color: #c8c8c8;
+.light-theme .check-box .box {
+    -fx-border-color: #d0d7de;
     -fx-background-color: #ffffff;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
 }
 
-.combo-box:focused {
-    -fx-border-color: #4D90FE;
+.light-theme .check-box:selected .box {
+    -fx-background-color: #0969da;
+    -fx-border-color: #0969da;
+}
+
+/* 下拉框 */
+.combo-box {
+    -fx-border-color: #30363d;
+    -fx-background-color: #0d1117;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: #e6edf3;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #e6edf3;
 }
 
 .combo-box .arrow-button {
-    -fx-background-color: #f0f0f0;
-    -fx-border-color: #c8c8c8;
-    -fx-border-width: 0 0 0 1;
+    -fx-background-color: #21262d;
+    -fx-border-color: #30363d;
 }
 
 .combo-box .arrow {
-    -fx-background-color: #505050;
+    -fx-background-color: #e6edf3;
 }
 
-/* 分割线样式 */
+.light-theme .combo-box {
+    -fx-border-color: #d0d7de;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1f2328;
+}
+
+.light-theme .combo-box .list-cell {
+    -fx-text-fill: #1f2328;
+}
+
+.light-theme .combo-box .arrow-button {
+    -fx-background-color: #f6f8fa;
+    -fx-border-color: #d0d7de;
+}
+
+.light-theme .combo-box .arrow {
+    -fx-background-color: #1f2328;
+}
+
+/* 标签页 */
+.tab-pane {
+    -fx-background-color: #0d1117;
+}
+
+.tab {
+    -fx-background-color: #21262d;
+    -fx-border-color: #30363d;
+    -fx-text-fill: #c9d1d9;
+    -fx-padding: 8 16;
+}
+
+.tab:selected {
+    -fx-background-color: #0d1117;
+    -fx-text-fill: #e6edf3;
+    -fx-border-color: #58a6ff;
+    -fx-border-width: 0 0 2 0;
+}
+
+.light-theme .tab-pane {
+    -fx-background-color: #ffffff;
+}
+
+.light-theme .tab {
+    -fx-background-color: #f6f8fa;
+    -fx-border-color: #d0d7de;
+    -fx-text-fill: #656d76;
+}
+
+.light-theme .tab:selected {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1f2328;
+    -fx-border-color: #0969da;
+}
+
+/* 滚动条 */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar .track {
+    -fx-background-color: #21262d;
+    -fx-background-radius: 6;
+}
+
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #484f58;
+    -fx-background-radius: 6;
+}
+
+.scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: #6e7681;
+}
+
+.light-theme .scroll-pane .scroll-bar .track {
+    -fx-background-color: #f6f8fa;
+}
+
+.light-theme .scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #8c959f;
+}
+
+.light-theme .scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: #656d76;
+}
+
+/* 状态栏 */
+.status-bar {
+    -fx-background-color: linear-gradient(to bottom, #161b22, #0d1117);
+    -fx-border-color: #30363d;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 8 15;
+}
+
+.status-bar .label {
+    -fx-text-fill: #7d8590;
+    -fx-font-size: 11px;
+}
+
+.light-theme .status-bar {
+    -fx-background-color: linear-gradient(to bottom, #f6f8fa, #eaeef2);
+    -fx-border-color: #d0d7de;
+}
+
+.light-theme .status-bar .label {
+    -fx-text-fill: #656d76;
+}
+
+/* 对话框 */
+.dialog-pane {
+    -fx-background-color: #0d1117;
+    -fx-padding: 20;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, 0, 10);
+}
+
+.light-theme .dialog-pane {
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0, 0, 10);
+}
+
+/* 特殊效果 */
+.card {
+    -fx-background-color: #21262d;
+    -fx-background-radius: 8;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 4);
+}
+
+.light-theme .card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d0d7de;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 4);
+}
+
+/* 表格 */
+.table-view {
+    -fx-background-color: #0d1117;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.table-view .column-header {
+    -fx-background-color: #21262d;
+    -fx-text-fill: #e6edf3;
+    -fx-font-weight: bold;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #e6edf3;
+    -fx-border-color: #30363d;
+}
+
+.light-theme .table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d0d7de;
+}
+
+.light-theme .table-view .column-header {
+    -fx-background-color: #f6f8fa;
+    -fx-text-fill: #1f2328;
+}
+
+.light-theme .table-view .table-cell {
+    -fx-text-fill: #1f2328;
+    -fx-border-color: #d0d7de;
+}
+
+/* 进度条 */
+.progress-bar .track {
+    -fx-background-color: #21262d;
+    -fx-background-radius: 4;
+    -fx-pref-height: 6;
+}
+
+.progress-bar .bar {
+    -fx-background-color: #58a6ff;
+    -fx-background-radius: 4;
+}
+
+.light-theme .progress-bar .track {
+    -fx-background-color: #d0d7de;
+}
+
+.light-theme .progress-bar .bar {
+    -fx-background-color: #0969da;
+}
+
+/* 工具提示 */
+.tooltip {
+    -fx-background-color: #161b22;
+    -fx-text-fill: #e6edf3;
+    -fx-font-size: 11px;
+    -fx-padding: 6 10;
+    -fx-background-radius: 6;
+    -fx-border-color: #30363d;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 4);
+}
+
+.light-theme .tooltip {
+    -fx-background-color: #24292f;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #d0d7de;
+}
+
+/* ==============================================
+   设置页面专用样式
+   ============================================== */
+
+.settings-window {
+    -fx-background-color: #0d1117;
+}
+
+.settings-header {
+    -fx-background-color: #161b22;
+    -fx-border-color: #21262d;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 20;
+}
+
+.settings-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e6edf3;
+}
+
+.settings-content {
+    -fx-background-color: #0d1117;
+    -fx-padding: 0;
+}
+
+.settings-section {
+    -fx-background-color: #161b22;
+    -fx-background-radius: 12;
+    -fx-padding: 24;
+    -fx-border-color: #21262d;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0, 0, 2);
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #58a6ff;
+    -fx-padding: 0 0 8 0;
+}
+
+.setting-item {
+    -fx-padding: 12 0;
+}
+
+.setting-label {
+    -fx-font-weight: 600;
+    -fx-font-size: 15px;
+    -fx-text-fill: #e6edf3;
+}
+
+.setting-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: #8b949e;
+    -fx-wrap-text: true;
+    -fx-max-width: 400;
+}
+
+.settings-footer {
+    -fx-background-color: #161b22;
+    -fx-border-color: #21262d;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 16 20;
+}
+
+.browse-button {
+    -fx-min-width: 90;
+    -fx-pref-width: 90;
+    -fx-background-color: #21262d;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #e6edf3;
+    -fx-font-weight: 500;
+    -fx-font-size: 13px;
+    -fx-padding: 8 16;
+}
+
+.browse-button:hover {
+    -fx-background-color: #30363d;
+    -fx-border-color: #484f58;
+}
+
+.browse-button:pressed {
+    -fx-background-color: #161b22;
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(to bottom, #58a6ff, #4184e4);
+    -fx-border-color: #58a6ff;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-effect: dropshadow(gaussian, rgba(88,166,255,0.4), 4, 0, 0, 2);
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #79b8ff, #58a6ff);
+    -fx-effect: dropshadow(gaussian, rgba(88,166,255,0.6), 6, 0, 0, 3);
+}
+
+.primary-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #4184e4, #316dca);
+    -fx-effect: dropshadow(gaussian, rgba(88,166,255,0.2), 2, 0, 0, 1);
+}
+
+.secondary-button {
+    -fx-background-color: #21262d;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #e6edf3;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+.secondary-button:hover {
+    -fx-background-color: #30363d;
+    -fx-border-color: #484f58;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);
+}
+
+.secondary-button:pressed {
+    -fx-background-color: #161b22;
+    -fx-border-color: #21262d;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+/* 设置页面输入框样式 */
+.settings-content .text-field {
+    -fx-background-color: #0d1117;
+    -fx-border-color: #30363d;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+    -fx-text-fill: #e6edf3;
+    -fx-prompt-text-fill: #7d8590;
+    -fx-font-size: 14px;
+    -fx-effect: inset-shadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.settings-content .text-field:focused {
+    -fx-border-color: #58a6ff;
+    -fx-effect: dropshadow(gaussian, rgba(88,166,255,0.3), 4, 0, 0, 0);
+}
+
+/* 设置页面下拉框样式 */
+.settings-content .combo-box {
+    -fx-font-size: 14px;
+    -fx-padding: 0;
+}
+
+.settings-content .combo-box .list-cell {
+    -fx-padding: 10 12;
+    -fx-font-size: 14px;
+}
+
+/* 设置页面复选框样式 */
+.settings-content .check-box {
+    -fx-text-fill: #e6edf3;
+    -fx-font-weight: 500;
+    -fx-font-size: 14px;
+}
+
+.settings-content .check-box .box {
+    -fx-border-color: #30363d;
+    -fx-background-color: #0d1117;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-pref-width: 18;
+    -fx-pref-height: 18;
+    -fx-effect: inset-shadow(gaussian, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+.settings-content .check-box:hover .box {
+    -fx-border-color: #58a6ff;
+    -fx-background-color: #161b22;
+}
+
+.settings-content .check-box:selected .mark {
+    -fx-background-color: white;
+    -fx-padding: 2;
+}
+
+.settings-content .check-box:selected .box {
+    -fx-background-color: #58a6ff;
+    -fx-border-color: #58a6ff;
+    -fx-effect: dropshadow(gaussian, rgba(88,166,255,0.4), 3, 0, 0, 1);
+}
+
+/* 分隔线样式 */
 .separator {
     -fx-background-color: transparent;
 }
 
 .separator .line {
-    -fx-background-color: #e0e0e0;
-    -fx-border-color: #e0e0e0;
+    -fx-background-color: #21262d;
+    -fx-border-color: #21262d;
+    -fx-pref-height: 1;
 }
 
-/* 状态栏样式 */
-HBox.status-bar {
-    -fx-background-color: #f8f8f8;
-    -fx-border-color: #c8c8c8;
-    -fx-border-width: 1 0 0 0;
-    -fx-padding: 5 10 5 10;
+/* ==============================================
+   设置页面 - 浅色主题样式
+   ============================================== */
+
+.light-theme .settings-window {
+    -fx-background-color: #ffffff;
 }
 
-/* 超链接样式 */
-.hyperlink {
-    -fx-text-fill: #4D90FE;
-    -fx-border-width: 0;
-    -fx-underline: false;
+.light-theme .settings-header {
+    -fx-background-color: #f6f8fa;
+    -fx-border-color: #d0d7de;
 }
 
-.hyperlink:hover {
-    -fx-text-fill: #3080EE;
-    -fx-underline: true;
+.light-theme .settings-title {
+    -fx-text-fill: #1f2328;
 }
 
-/* 标题样式 */
-.label.title {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
+.light-theme .settings-content {
+    -fx-background-color: #ffffff;
 }
 
-.label.section-title {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-padding: 10 0 5 0;
+.light-theme .settings-section {
+    -fx-background-color: #f6f8fa;
+    -fx-border-color: #d0d7de;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0, 0, 2);
 }
 
-/* 配置详情区域样式 */
-.details-pane {
-    -fx-spacing: 10;
-    -fx-padding: 10;
+.light-theme .section-title {
+    -fx-text-fill: #0969da;
 }
 
-/* 活动浏览器指示器 */
-.list-cell.active {
-    -fx-font-weight: bold;
-    -fx-text-fill: green;
+.light-theme .setting-label {
+    -fx-text-fill: #1f2328;
 }
 
-/* 搜索框样式 */
-.search-box {
-    -fx-padding: 5;
-    -fx-background-color: white;
-    -fx-border-color: #c8c8c8;
-    -fx-border-radius: 15;
-    -fx-background-radius: 15;
-    -fx-prompt-text-fill: #808080;
+.light-theme .setting-description {
+    -fx-text-fill: #656d76;
 }
 
-.search-box:focused {
-    -fx-border-color: #4D90FE;
+.light-theme .settings-footer {
+    -fx-background-color: #f6f8fa;
+    -fx-border-color: #d0d7de;
 }
 
-/* 弹出对话框样式 */
-.dialog-pane {
-    -fx-background-color: white;
-    -fx-padding: 10;
+.light-theme .browse-button {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d0d7de;
+    -fx-text-fill: #1f2328;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 2, 0, 0, 1);
 }
 
-.dialog-pane .header-panel {
-    -fx-background-color: #f8f8f8;
-    -fx-padding: 10;
+.light-theme .browse-button:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #8c959f;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 3, 0, 0, 2);
 }
 
-.dialog-pane .header-panel .label {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
+.light-theme .browse-button:pressed {
+    -fx-background-color: #e1e4e8;
+    -fx-border-color: #656d76;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 1, 0, 0, 1);
 }
 
-/* 表格样式 */
-.grid-pane {
-    -fx-hgap: 10;
-    -fx-vgap: 10;
-    -fx-padding: 10;
+.light-theme .primary-button {
+    -fx-background-color: linear-gradient(to bottom, #0969da, #0860ca);
+    -fx-border-color: #0969da;
+    -fx-effect: dropshadow(gaussian, rgba(9,105,218,0.4), 4, 0, 0, 2);
 }
 
-/* 标签框和分组样式 */
-.titled-pane {
-    -fx-text-fill: #505050;
+.light-theme .primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #1f7ce8, #0969da);
+    -fx-effect: dropshadow(gaussian, rgba(9,105,218,0.6), 6, 0, 0, 3);
 }
 
-.titled-pane > .title {
-    -fx-background-color: #f0f0f0;
-    -fx-font-weight: bold;
+.light-theme .primary-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #0860ca, #0757ba);
+    -fx-effect: dropshadow(gaussian, rgba(9,105,218,0.2), 2, 0, 0, 1);
 }
 
-/* 进度条样式 */
-.progress-bar {
-    -fx-indeterminate-bar-length: 60;
-    -fx-indeterminate-bar-escape: true;
-    -fx-indeterminate-bar-flip: true;
-    -fx-indeterminate-bar-animation-time: 2;
+.light-theme .secondary-button {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d0d7de;
+    -fx-text-fill: #1f2328;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 2, 0, 0, 1);
 }
 
-.progress-bar .track {
-    -fx-background-color: #e0e0e0;
+.light-theme .secondary-button:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #8c959f;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 3, 0, 0, 2);
 }
 
-.progress-bar .bar {
-    -fx-background-color: #4D90FE;
+.light-theme .secondary-button:pressed {
+    -fx-background-color: #e1e4e8;
+    -fx-border-color: #656d76;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 1, 0, 0, 1);
 }
 
-/* 提示信息样式 */
-.tooltip {
-    -fx-background-color: #505050;
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-padding: 5 8 5 8;
-    -fx-background-radius: 3;
+/* 浅色主题 - 设置页面输入框 */
+.light-theme .settings-content .text-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d0d7de;
+    -fx-text-fill: #1f2328;
+    -fx-prompt-text-fill: #656d76;
+    -fx-effect: inset-shadow(gaussian, rgba(0,0,0,0.03), 2, 0, 0, 1);
+}
+
+.light-theme .settings-content .text-field:focused {
+    -fx-border-color: #0969da;
+    -fx-effect: dropshadow(gaussian, rgba(9,105,218,0.3), 4, 0, 0, 0);
+}
+
+/* 浅色主题 - 设置页面复选框 */
+.light-theme .settings-content .check-box {
+    -fx-text-fill: #1f2328;
+}
+
+.light-theme .settings-content .check-box .box {
+    -fx-border-color: #8c959f;
+    -fx-background-color: #ffffff;
+    -fx-effect: inset-shadow(gaussian, rgba(0,0,0,0.03), 2, 0, 0, 1);
+}
+
+.light-theme .settings-content .check-box:hover .box {
+    -fx-border-color: #0969da;
+    -fx-background-color: #f6f8fa;
+}
+
+.light-theme .settings-content .check-box:selected .box {
+    -fx-background-color: #0969da;
+    -fx-border-color: #0969da;
+    -fx-effect: dropshadow(gaussian, rgba(9,105,218,0.4), 3, 0, 0, 1);
+}
+
+/* 浅色主题 - 分隔线 */
+.light-theme .separator .line {
+    -fx-background-color: #d0d7de;
+    -fx-border-color: #d0d7de;
 }

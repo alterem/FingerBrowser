@@ -19,9 +19,7 @@
             <Separator orientation="VERTICAL"/>
             <Button text="刷新列表" onAction="#handleRefreshList"/>
             <Separator orientation="VERTICAL"/>
-            <Label text="浏览器路径:"/>
-            <TextField fx:id="browserPathField" prefWidth="200"/>
-            <Button text="浏览..." onAction="#handleBrowseBrowserPath"/>
+            <Button text="⚙️ 设置" onAction="#handleOpenSettings" style="-fx-font-size: 12px;"/>
         </ToolBar>
     </top>
 

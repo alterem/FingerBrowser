@@ -3,9 +3,12 @@ package com.basis.fingerbrowser.controller;
 import com.basis.fingerbrowser.model.BrowserProfile;
 import com.basis.fingerbrowser.model.ProxySettings;
 import com.basis.fingerbrowser.service.ProfileManagerService;
+import com.basis.fingerbrowser.service.ThemeService;
 import com.basis.fingerbrowser.util.FingerprintGenerator;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -79,6 +82,9 @@ public class ProfileController {
 
     @FXML
     public void initialize() {
+        // 设置主题支持
+        setupTheme();
+        
         // 初始化下拉菜单选项
 
         // User-Agent 选项
@@ -475,6 +481,17 @@ public class ProfileController {
             alert.setHeaderText(null);
             alert.setContentText(message);
             alert.showAndWait();
+        });
+    }
+
+    private void setupTheme() {
+        // 注册当前窗口的场景以支持主题切换
+        Platform.runLater(() -> {
+            Scene scene = nameField.getScene();
+            if (scene != null) {
+                ThemeService themeService = ThemeService.getInstance();
+                themeService.registerScene(scene);
+            }
         });
     }
 }

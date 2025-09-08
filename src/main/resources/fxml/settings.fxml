@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.basis.fingerbrowser.controller.SettingsController"
+            prefHeight="500.0" prefWidth="600.0" styleClass="settings-window">
+
+    <top>
+        <VBox>
+            <HBox alignment="CENTER_LEFT" styleClass="settings-header">
+                <padding>
+                    <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+                </padding>
+                <Label text="设置" styleClass="settings-title"/>
+            </HBox>
+            <Separator/>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="settings-content">
+            <VBox spacing="25.0">
+                <padding>
+                    <Insets top="25.0" right="25.0" bottom="25.0" left="25.0"/>
+                </padding>
+
+                <!-- 应用程序设置 -->
+                <VBox spacing="15.0" styleClass="settings-section">
+                    <Label text="应用程序" styleClass="section-title"/>
+                    
+                    <!-- 主题设置 -->
+                    <VBox spacing="8.0" styleClass="setting-item">
+                        <Label text="主题" styleClass="setting-label"/>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <ComboBox fx:id="themeComboBox" prefWidth="200.0">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="浅色主题"/>
+                                        <String fx:value="深色主题"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                            <Label text="选择应用程序的外观主题" styleClass="setting-description"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- 语言设置（预留） -->
+                    <VBox spacing="8.0" styleClass="setting-item">
+                        <Label text="语言" styleClass="setting-label"/>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <ComboBox fx:id="languageComboBox" prefWidth="200.0" disable="true">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="简体中文"/>
+                                        <String fx:value="English"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                            <Label text="选择应用程序界面语言（即将推出）" styleClass="setting-description"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <Separator/>
+
+                <!-- 浏览器设置 -->
+                <VBox spacing="15.0" styleClass="settings-section">
+                    <Label text="浏览器配置" styleClass="section-title"/>
+                    
+                    <!-- 浏览器路径设置 -->
+                    <VBox spacing="8.0" styleClass="setting-item">
+                        <Label text="浏览器路径" styleClass="setting-label"/>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <TextField fx:id="browserPathField" prefWidth="350.0" promptText="请选择浏览器可执行文件路径"/>
+                            <Button text="浏览..." onAction="#handleBrowseBrowserPath" styleClass="browse-button"/>
+                        </HBox>
+                        <Label text="选择要使用的浏览器可执行文件（如 Chrome、Firefox 等）" styleClass="setting-description"/>
+                    </VBox>
+
+                    <!-- 默认配置设置（预留） -->
+                    <VBox spacing="8.0" styleClass="setting-item">
+                        <Label text="默认配置" styleClass="setting-label"/>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <ComboBox fx:id="defaultProfileComboBox" prefWidth="200.0" disable="true">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="无"/>
+                                        <String fx:value="自动选择"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                            <Label text="设置启动时默认选择的配置（即将推出）" styleClass="setting-description"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <Separator/>
+
+                <!-- 高级设置 -->
+                <VBox spacing="15.0" styleClass="settings-section">
+                    <Label text="高级设置" styleClass="section-title"/>
+                    
+                    <!-- 自动保存设置 -->
+                    <VBox spacing="8.0" styleClass="setting-item">
+                        <Label text="自动保存" styleClass="setting-label"/>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <CheckBox fx:id="autoSaveCheckBox" text="自动保存配置更改"/>
+                        </HBox>
+                        <Label text="启用后，对配置的更改将自动保存" styleClass="setting-description"/>
+                    </VBox>
+
+                    <!-- 启动时检查更新 -->
+                    <VBox spacing="8.0" styleClass="setting-item">
+                        <Label text="更新检查" styleClass="setting-label"/>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <CheckBox fx:id="checkUpdatesCheckBox" text="启动时检查更新" disable="true"/>
+                        </HBox>
+                        <Label text="启动应用程序时自动检查是否有新版本（即将推出）" styleClass="setting-description"/>
+                    </VBox>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10.0" styleClass="settings-footer">
+            <padding>
+                <Insets top="15.0" right="20.0" bottom="15.0" left="20.0"/>
+            </padding>
+            <Button text="重置为默认" onAction="#handleResetToDefaults" styleClass="secondary-button"/>
+            <Button text="取消" onAction="#handleCancel" styleClass="secondary-button"/>
+            <Button text="应用" onAction="#handleApply" styleClass="primary-button"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

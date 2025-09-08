@@ -4,6 +4,7 @@ import com.basis.fingerbrowser.model.BrowserProfile;
 import com.basis.fingerbrowser.model.ProfileViewModel;
 import com.basis.fingerbrowser.service.BrowserService;
 import com.basis.fingerbrowser.service.ProfileManagerService;
+import com.basis.fingerbrowser.service.ThemeService;
 import com.basis.fingerbrowser.util.FingerprintGenerator;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -18,6 +19,9 @@ import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.prefs.Preferences;
 
 public class MainController {
     // Logger
@@ -34,9 +39,11 @@ public class MainController {
     private static final String APP_DATA_DIR_NAME = ".fingerbrowser";
     private static final String PROFILES_DIR_NAME = "profiles";
     private static final String BROWSER_DATA_DIR_NAME = "browser_data";
+    private static final String BROWSER_PATH_KEY = "browser_path";
 
-    @FXML
-    private TextField browserPathField;
+    // 移除 browserPathField，现在在设置页面中管理
+    // @FXML
+    // private TextField browserPathField;
     @FXML
     private TextField searchField;
     @FXML
@@ -82,8 +89,10 @@ public class MainController {
 
     private ProfileManagerService profileManager;
     private BrowserService browserService;
+    private ThemeService themeService;
     private FilteredList<BrowserProfile> filteredProfiles;
     private final ProfileViewModel profileViewModel = new ProfileViewModel();
+    private Preferences preferences;
 
     private final StringProperty status = new SimpleStringProperty("就绪");
 
@@ -93,6 +102,8 @@ public class MainController {
         setupServices();
         setupBindings();
         setupEventListeners();
+        setupTheme();
+        setupKeyboardShortcuts();
         log.info("MainController initialization complete.");
     }
 
@@ -104,11 +115,26 @@ public class MainController {
         profileManager = new ProfileManagerService(profilesDir);
         log.info("Profile manager initialized. Loading profiles from: {}", profilesDir);
 
-        String defaultBrowserPath = findDefaultBrowserPath();
-        browserPathField.setText(defaultBrowserPath);
+        // 初始化偏好设置
+        preferences = Preferences.userNodeForPackage(MainController.class);
+
+        // 从设置中加载浏览器路径，如果没有则使用默认路径
+        String browserPath = preferences.get(BROWSER_PATH_KEY, "");
+        if (browserPath.isEmpty() || !new File(browserPath).exists()) {
+            browserPath = findDefaultBrowserPath();
+            if (!browserPath.isEmpty()) {
+                preferences.put(BROWSER_PATH_KEY, browserPath);
+                try {
+                    preferences.flush();
+                } catch (Exception e) {
+                    log.warn("Failed to save default browser path to preferences", e);
+                }
+            }
+        }
+
         try {
-            browserService = new BrowserService(defaultBrowserPath, appDataDir + File.separator + BROWSER_DATA_DIR_NAME);
-            log.info("Browser service initialized. Default browser path: {}", defaultBrowserPath);
+            browserService = new BrowserService(browserPath, appDataDir + File.separator + BROWSER_DATA_DIR_NAME);
+            log.info("Browser service initialized. Browser path: {}", browserPath);
         } catch (RuntimeException e) {
             log.error("Failed to initialize browser service", e);
             showAlert("初始化错误", "无法初始化浏览器服务: " + e.getMessage());
@@ -175,6 +201,70 @@ public class MainController {
                 }
             }
         });
+    }
+
+    private void setupTheme() {
+        // 初始化主题服务
+        themeService = ThemeService.getInstance();
+
+        // 注册当前场景以支持主题切换
+        Platform.runLater(() -> {
+            Scene scene = profileList.getScene();
+            if (scene != null) {
+                themeService.registerScene(scene);
+                log.info("Scene registered for theme management");
+            }
+        });
+
+        // 添加主题变更监听器
+        themeService.addThemeChangeListener(newTheme -> {
+            Platform.runLater(() -> {
+                String message = "已切换到" + (themeService.isDarkTheme() ? "深色" : "浅色") + "主题";
+                setStatus(message);
+                log.info("Theme changed to: {}", newTheme);
+            });
+        });
+    }
+
+    /**
+     * 设置键盘快捷键
+     */
+    private void setupKeyboardShortcuts() {
+        Platform.runLater(() -> {
+            Scene scene = profileList.getScene();
+            if (scene != null) {
+                // macOS: Command + ,
+                // Windows/Linux: Ctrl + ,
+                KeyCombination settingsShortcut = System.getProperty("os.name").toLowerCase().contains("mac")
+                        ? new KeyCodeCombination(KeyCode.COMMA, KeyCombination.META_DOWN)
+                        : new KeyCodeCombination(KeyCode.COMMA, KeyCombination.CONTROL_DOWN);
+
+                scene.getAccelerators().put(settingsShortcut, this::handleOpenSettings);
+                log.info("Keyboard shortcut registered: {} for opening settings", settingsShortcut);
+            }
+        });
+    }
+
+    /**
+     * 从设置中加载浏览器路径 (已废弃 - 集成到setupServices中)
+     */
+    // 移除此方法，功能已集成到setupServices中
+
+    /**
+     * 更新浏览器路径（从设置页面调用）
+     */
+    public void updateBrowserPath(String browserPath) {
+        if (browserPath != null && browserService != null) {
+            browserService.setBrowserExecutablePath(browserPath);
+            // 保存到偏好设置
+            preferences.put(BROWSER_PATH_KEY, browserPath);
+            try {
+                preferences.flush();
+            } catch (Exception e) {
+                log.warn("Failed to save browser path to preferences", e);
+            }
+            log.info("Browser path updated: {}", browserPath);
+        }
     }
 
 
@@ -251,8 +341,17 @@ public class MainController {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("新建浏览器配置");
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+
+            // 注册主题服务并确保样式表加载
+            scene.getStylesheets().add(getClass().getResource("/styles/application.css").toExternalForm());
+            themeService.registerScene(scene);
+
             stage.showAndWait();
+
+            // 注销场景
+            themeService.unregisterScene(scene);
 
             // After closing the editor, refresh the list and select the new profile
             if (profileManager.getProfiles().contains(profile)) {
@@ -285,8 +384,17 @@ public class MainController {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("编辑浏览器配置");
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+
+            // 注册主题服务并确保样式表加载
+            scene.getStylesheets().add(getClass().getResource("/styles/application.css").toExternalForm());
+            themeService.registerScene(scene);
+
             stage.showAndWait();
+
+            // 注销场景
+            themeService.unregisterScene(scene);
 
             // Refresh the view model to reflect changes
             profileViewModel.setProfile(selectedProfile);
@@ -427,10 +535,7 @@ public class MainController {
         runTask(new Task<>() {
             @Override
             protected Boolean call() {
-                String browserPath = browserPathField.getText();
-                if (browserPath != null && !browserPath.isEmpty()) {
-                    browserService.setBrowserExecutablePath(browserPath);
-                }
+                // 浏览器路径现在由BrowserService管理，不需要从UI获取
                 return browserService.launchBrowser(selectedProfile);
             }
         }, "启动", selectedProfile.getName());
@@ -485,32 +590,107 @@ public class MainController {
         log.info("Profile list refreshed.");
     }
 
+    /**
+     * 浏览器路径选择功能已移动到设置页面
+     * 此方法已废弃
+     */
+    // @FXML
+    // private void handleBrowseBrowserPath() {
+    //     // 功能已移动到设置页面
+    // }
+
     @FXML
-    private void handleBrowseBrowserPath() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("选择浏览器可执行文件");
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("可执行文件", "*.exe"));
-        }
-        File currentBrowser = new File(browserPathField.getText());
-        if (currentBrowser.exists()) {
-            fileChooser.setInitialDirectory(currentBrowser.getParentFile());
-        }
-        File file = fileChooser.showOpenDialog(profileList.getScene().getWindow());
-        if (file != null) {
-            String newPath = file.getAbsolutePath();
-            browserPathField.setText(newPath);
-            log.info("User selected new browser path: {}", newPath);
+    private void handleAbout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/about.fxml"));
+            Parent root = loader.load();
+
+            AboutController controller = loader.getController();
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("关于 FingerprintBrowser");
+            stage.setResizable(false);
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            
+            // 注册主题服务并确保样式表加载
+            scene.getStylesheets().add(getClass().getResource("/styles/application.css").toExternalForm());
+            themeService.registerScene(scene);
+            controller.setStage(stage);
+            
+            stage.showAndWait();
+
+            // 注销场景
+            themeService.unregisterScene(scene);
+            
+            log.info("About window closed");
+
+        } catch (IOException e) {
+            log.error("Failed to open about window", e);
+            // 如果无法打开自定义关于窗口，回退到简单的 Alert
+            showAlert("关于", "指纹浏览器 v1.0\n\n一款用于防关联的多开浏览器，每个实例拥有独立的浏览器指纹。\n\n© 2025 FingerprintBrowser");
         }
     }
 
     @FXML
-    private void handleAbout() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("关于");
-        alert.setHeaderText("指纹浏览器");
-        alert.setContentText("版本 1.0\n\n一款用于防关联的多开浏览器，每个实例拥有独立的浏览器指纹。\n\n© 2025 FingerprintBrowser");
-        alert.showAndWait();
+    private void handleToggleTheme() {
+        if (themeService != null) {
+            themeService.toggleTheme();
+            log.info("User toggled theme to: {}", themeService.getCurrentTheme());
+        }
+    }
+
+    /**
+     * 打开设置页面
+     */
+    @FXML
+    private void handleOpenSettings() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/settings.fxml"));
+            Parent root = loader.load();
+
+            SettingsController controller = loader.getController();
+            controller.setMainController(this);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("设置");
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+
+            // 注册主题服务并确保样式表加载
+            scene.getStylesheets().add(getClass().getResource("/styles/application.css").toExternalForm());
+            themeService.registerScene(scene);
+            controller.setStage(stage);
+
+            stage.showAndWait();
+
+            // 注销场景
+            themeService.unregisterScene(scene);
+
+            log.info("Settings window closed");
+
+        } catch (IOException e) {
+            log.error("Failed to open settings window", e);
+            showAlert("错误", "无法打开设置页面: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleSetLightTheme() {
+        if (themeService != null) {
+            themeService.setLightTheme();
+            log.info("User switched to light theme");
+        }
+    }
+
+    @FXML
+    private void handleSetDarkTheme() {
+        if (themeService != null) {
+            themeService.setDarkTheme();
+            log.info("User switched to dark theme");
+        }
     }
 
     private void setStatus(String message) {

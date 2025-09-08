@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.basis.fingerbrowser.controller.AboutController"
+            prefHeight="400.0" prefWidth="500.0" styleClass="about-window">
+
+    <top>
+        <VBox styleClass="about-header" alignment="CENTER">
+            <padding>
+                <Insets top="30.0" right="20.0" bottom="20.0" left="20.0"/>
+            </padding>
+            
+            <!-- 应用图标区域 -->
+            <HBox alignment="CENTER" spacing="15.0">
+                <!-- 这里可以添加应用图标 -->
+                <Label text="🛡️" styleClass="app-icon"/>
+                <Label text="指纹浏览器" styleClass="app-title"/>
+            </HBox>
+            
+            <Label text="FingerprintBrowser" styleClass="app-subtitle"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="20.0" styleClass="about-content">
+            <padding>
+                <Insets top="20.0" right="30.0" bottom="20.0" left="30.0"/>
+            </padding>
+
+            <!-- 版本信息 -->
+            <VBox spacing="8.0" styleClass="info-section">
+                <Label text="版本信息" styleClass="section-header"/>
+                <HBox spacing="10.0">
+                    <Label text="版本:" styleClass="info-label"/>
+                    <Label text="1.0.0" styleClass="info-value"/>
+                </HBox>
+                <HBox spacing="10.0">
+                    <Label text="构建日期:" styleClass="info-label"/>
+                    <Label text="2025年1月" styleClass="info-value"/>
+                </HBox>
+            </VBox>
+
+            <Separator/>
+
+            <!-- 应用描述 -->
+            <VBox spacing="8.0" styleClass="info-section">
+                <Label text="关于应用" styleClass="section-header"/>
+                <Label text="一款专业的防关联多开浏览器工具" styleClass="app-description"/>
+                <Label text="为每个浏览器实例提供独立的数字指纹，确保完全隔离" styleClass="app-description"/>
+            </VBox>
+
+            <Separator/>
+
+            <!-- 功能特性 -->
+            <VBox spacing="8.0" styleClass="info-section">
+                <Label text="核心特性" styleClass="section-header"/>
+                <VBox spacing="4.0">
+                    <Label text="• 独立的浏览器指纹和身份" styleClass="feature-item"/>
+                    <Label text="• 完全隔离的用户数据和缓存" styleClass="feature-item"/>
+                    <Label text="• 代理和网络配置支持" styleClass="feature-item"/>
+                    <Label text="• 配置文件导入导出功能" styleClass="feature-item"/>
+                    <Label text="• 深色和浅色主题支持" styleClass="feature-item"/>
+                </VBox>
+            </VBox>
+
+        </VBox>
+    </center>
+
+    <bottom>
+        <VBox styleClass="about-footer">
+            <Separator/>
+            <HBox alignment="CENTER" spacing="15.0">
+                <padding>
+                    <Insets top="15.0" right="20.0" bottom="15.0" left="20.0"/>
+                </padding>
+                <Label text="© 2025 FingerprintBrowser" styleClass="copyright"/>
+                <Label text="•" styleClass="separator-dot"/>
+                <Hyperlink text="开源许可" styleClass="link"/>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT">
+                <padding>
+                    <Insets top="10.0" right="20.0" bottom="20.0" left="20.0"/>
+                </padding>
+                <Button text="确定" onAction="#handleClose" styleClass="primary-button" prefWidth="100.0"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+</BorderPane>

@@ -8,6 +8,7 @@ module com.basis.javafx {
     requires java.desktop;
     requires java.logging;
     requires org.slf4j;
+    requires java.prefs;
 
     // 导出包给 FXML 加载器
     exports com.basis.fingerbrowser to javafx.graphics;
