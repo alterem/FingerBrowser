@@ -170,10 +170,24 @@
                         <macBundleName>FingerprintBrowser</macBundleName>
                         <macBundleIdentifier>com.basis.fingerbrowser</macBundleIdentifier>
                     </macOptions>
+                    <winOptions>
+                        <winDirChooser>true</winDirChooser>
+                        <winMenuGroup>FingerprintBrowser</winMenuGroup>
+                        <winPerUserInstall>false</winPerUserInstall>
+                        <winShortcut>true</winShortcut>
+                        <winMenu>true</winMenu>
+                    </winOptions>
                 </configuration>
                 <executions>
                     <execution>
                         <id>mac</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>win</id>
                         <phase>package</phase>
                         <goals>
                             <goal>jpackage</goal>
