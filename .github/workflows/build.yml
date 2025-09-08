@@ -42,8 +42,8 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Test build with JavaFX plugin
-      run: mvn clean package -DskipTests
+    - name: Build project
+      run: mvn clean install -DskipTests
 
     - name: Create runtime image
       run: mvn javafx:jlink
