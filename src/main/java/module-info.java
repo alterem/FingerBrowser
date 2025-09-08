@@ -1,4 +1,4 @@
-module com.basis.javafx {
+module com.basis.fingerbrowser {
     // 所需的 JavaFX 模块
     requires javafx.controls;
     requires javafx.fxml;

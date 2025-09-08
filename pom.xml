@@ -107,6 +107,9 @@
                         <configuration>
                             <mainClass>com.basis.fingerbrowser/com.basis.fingerbrowser.FingerprintBrowserApp</mainClass>
                             <options>
+                                <option>-Xdock:name=FingerprintBrowser</option>
+                                <option>-Dcom.apple.mrj.application.apple.menu.about.name=FingerprintBrowser</option>
+                                <option>-Dapple.awt.application.name=FingerprintBrowser</option>
                                 <option>--enable-native-access=javafx.graphics</option>
                                 <option>--enable-native-access=javafx.base</option>
                                 <option>--enable-native-access=javafx.controls</option>
@@ -144,6 +147,37 @@
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- jpackage 插件用于创建原生应用程序 -->
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <configuration>
+                    <name>FingerprintBrowser</name>
+                    <appVersion>1.0.0</appVersion>
+                    <vendor>Basis</vendor>
+                    <destination>target/dist</destination>
+                    <module>com.basis.fingerbrowser/com.basis.fingerbrowser.FingerprintBrowserApp</module>
+                    <runtimeImage>target/app</runtimeImage>
+                    <javaOptions>
+                        <option>-Dfile.encoding=UTF-8</option>
+                    </javaOptions>
+                    <macOptions>
+                        <macPackageName>FingerprintBrowser</macPackageName>
+                        <macBundleName>FingerprintBrowser</macBundleName>
+                        <macBundleIdentifier>com.basis.fingerbrowser</macBundleIdentifier>
+                    </macOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>mac</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

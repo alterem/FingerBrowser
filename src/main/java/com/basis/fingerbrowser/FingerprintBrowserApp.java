@@ -101,6 +101,9 @@ public class FingerprintBrowserApp extends Application {
     }
 
     public static void main(String[] args) {
+        // 设置应用程序名称（用于活动监视器等系统显示）
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "FingerprintBrowser");
+        System.setProperty("apple.awt.application.name", "FingerprintBrowser");
         launch(args);
     }
 }
