@@ -107,10 +107,18 @@ public class BrowserService implements AutoCloseable {
 
                 // 验证进程启动成功
                 try {
-                    Thread.sleep(1000); // 等待1秒检查进程是否正常启动
+                    Thread.sleep(2000); // 增加等待时间到2秒，确保进程稳定启动
                     if (!process.isAlive()) {
-                        log.error("Browser process for profile '{}' exited immediately with code {}", 
-                                profile.getName(), process.exitValue());
+                        int exitCode = process.exitValue();
+                        log.error("Browser process for profile '{}' exited immediately with code {}. Command was: {}", 
+                                profile.getName(), exitCode, String.join(" ", command));
+                        
+                        // 记录标准输出和错误输出以帮助调试
+                        try (var scanner = new java.util.Scanner(process.getInputStream())) {
+                            if (scanner.hasNext()) {
+                                log.error("Process stdout: {}", scanner.useDelimiter("\\A").next());
+                            }
+                        }
                         return false;
                     }
                 } catch (InterruptedException e) {
@@ -228,9 +236,9 @@ public class BrowserService implements AutoCloseable {
         }
         command.add(browserPath);
 
-        // 用户数据目录
-        command.add("--user-data-dir=" + getBaseDataDir());
-        command.add("--profile-directory=" + sanitizeProfileId(profile.getId()));
+        // 用户数据目录 - 使用完整路径避免配置冲突
+        String profileDataDir = getBaseDataDir() + File.separator + sanitizeProfileId(profile.getId());
+        command.add("--user-data-dir=" + profileDataDir);
 
         // User-Agent
         if (profile.getUserAgent() != null && !profile.getUserAgent().isEmpty()) {
@@ -274,6 +282,7 @@ public class BrowserService implements AutoCloseable {
             if (webRTCSettings.containsKey("ipHandlingPolicy")) {
                 command.add("--webrtc-ip-handling-policy=" + webRTCSettings.get("ipHandlingPolicy"));
             }
+            // 只有在明确禁用时才添加禁用参数
             if (webRTCSettings.containsKey("enabled") && !(boolean) webRTCSettings.get("enabled")) {
                 command.add("--disable-webrtc");
             }
@@ -287,27 +296,22 @@ public class BrowserService implements AutoCloseable {
             }
         }
 
-        // 其他Chrome/Chromium特定参数
-        command.add("--disable-gpu");
-        command.add("--disable-software-rasterizer");
-        command.add("--disable-dev-shm-usage");
-        command.add("--disable-extensions");
-        command.add("--disable-default-apps");
-        command.add("--disable-background-networking");
-        command.add("--disable-background-timer-throttling");
-        command.add("--disable-breakpad");
-        command.add("--disable-component-update");
-        command.add("--disable-domain-reliability");
-        command.add("--disable-features=AudioServiceOutOfProcess");
-        command.add("--disable-hang-monitor");
-        command.add("--disable-popup-blocking");
-        command.add("--disable-prompt-on-repost");
-        command.add("--disable-renderer-backgrounding");
-        command.add("--safebrowsing-disable-auto-update");
-
+        // 基础Chrome参数 - 保持兼容性但不过度限制
         command.add("--no-first-run");
         command.add("--no-default-browser-check");
         command.add("--disable-sync");
+        command.add("--disable-default-apps");
+        command.add("--disable-extensions");
+        command.add("--disable-component-update");
+        command.add("--disable-background-networking");
+        
+        // 安全相关参数
+        command.add("--disable-features=VizDisplayCompositor");
+        command.add("--disable-ipc-flooding-protection");
+        
+        // 性能优化参数
+        command.add("--max_old_space_size=4096");
+        command.add("--disable-renderer-backgrounding");
 
         return command;
     }
