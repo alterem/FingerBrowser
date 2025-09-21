@@ -19,7 +19,7 @@ public class BrowserService implements AutoCloseable {
     private static final int DEFAULT_SHUTDOWN_TIMEOUT_SECONDS = 10;
     private static final int PROCESS_TERMINATION_TIMEOUT_SECONDS = 5;
     private static final int FORCE_TERMINATION_TIMEOUT_SECONDS = 2;
-    
+
     private final Map<String, Process> runningBrowsers = new ConcurrentHashMap<>();
     private final ExecutorService monitoringExecutor = Executors.newCachedThreadPool(r -> {
         Thread thread = new Thread(r, "browser-monitor");
@@ -27,7 +27,7 @@ public class BrowserService implements AutoCloseable {
         return thread;
     });
     private final AtomicBoolean isShutdown = new AtomicBoolean(false);
-    
+
     private volatile String baseBrowserPath;
     private final String baseDataDir;
 
@@ -43,7 +43,7 @@ public class BrowserService implements AutoCloseable {
             throw new RuntimeException("Cannot initialize BrowserService: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * 设置浏览器可执行文件路径
      * @param path 路径
@@ -53,12 +53,12 @@ public class BrowserService implements AutoCloseable {
         if (path == null || path.trim().isEmpty()) {
             throw new IllegalArgumentException("Browser executable path cannot be null or empty");
         }
-        
+
         File browserFile = new File(path);
         if (!browserFile.exists() || !browserFile.isFile() || !browserFile.canExecute()) {
             throw new IllegalArgumentException("Invalid browser executable path: " + path);
         }
-        
+
         this.baseBrowserPath = path;
         log.info("Browser executable path updated to: {}", path);
     }
@@ -79,11 +79,11 @@ public class BrowserService implements AutoCloseable {
      */
     public boolean launchBrowser(BrowserProfile profile) {
         validateProfile(profile);
-        
+
         if (isShutdown.get()) {
             throw new IllegalStateException("Browser service has been shutdown");
         }
-        
+
         synchronized (this) {
             try {
                 // 如果浏览器已经在运行，则返回
@@ -105,20 +105,16 @@ public class BrowserService implements AutoCloseable {
                 builder.redirectErrorStream(true);
                 Process process = builder.start();
 
+                // 启动输出消费线程，避免缓冲区阻塞
+                startProcessOutputGobbler(profile, process);
+
                 // 验证进程启动成功
                 try {
                     Thread.sleep(2000); // 增加等待时间到2秒，确保进程稳定启动
                     if (!process.isAlive()) {
                         int exitCode = process.exitValue();
-                        log.error("Browser process for profile '{}' exited immediately with code {}. Command was: {}", 
+                        log.error("Browser process for profile '{}' exited immediately with code {}. Command was: {}",
                                 profile.getName(), exitCode, String.join(" ", command));
-                        
-                        // 记录标准输出和错误输出以帮助调试
-                        try (var scanner = new java.util.Scanner(process.getInputStream())) {
-                            if (scanner.hasNext()) {
-                                log.error("Process stdout: {}", scanner.useDelimiter("\\A").next());
-                            }
-                        }
                         return false;
                     }
                 } catch (InterruptedException e) {
@@ -137,6 +133,9 @@ public class BrowserService implements AutoCloseable {
                 log.info("Successfully launched browser for profile '{}'", profile.getName());
                 return true;
 
+            } catch (IllegalArgumentException e) {
+                log.error("Invalid browser configuration for profile '{}': {}", profile.getName(), e.getMessage());
+                return false;
             } catch (IOException e) {
                 log.error("Failed to launch browser for profile '{}'", profile.getName(), e);
                 return false;
@@ -154,10 +153,10 @@ public class BrowserService implements AutoCloseable {
         if (profile == null || profile.getId() == null) {
             throw new IllegalArgumentException("Profile and profile ID cannot be null");
         }
-        
+
         return closeBrowserById(profile.getId(), profile.getName());
     }
-    
+
     /**
      * 根据ID关闭浏览器实例
      */
@@ -167,17 +166,17 @@ public class BrowserService implements AutoCloseable {
             log.warn("Attempted to close browser for profile '{}', but it was not running.", profileName);
             return true; // 浏览器不在运行中，视为成功关闭
         }
-        
+
         log.info("Closing browser for profile '{}'", profileName);
-        
+
         try {
             // 优雅关闭
             process.destroy();
-            
+
             if (!process.waitFor(PROCESS_TERMINATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 log.warn("Browser process for profile '{}' did not terminate gracefully. Forcing.", profileName);
                 process.destroyForcibly();
-                
+
                 if (!process.waitFor(FORCE_TERMINATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                     log.error("Failed to forcibly terminate browser process for profile '{}'", profileName);
                 }
@@ -191,7 +190,7 @@ public class BrowserService implements AutoCloseable {
             // 移除记录
             runningBrowsers.remove(profileId);
         }
-        
+
         boolean closed = !process.isAlive();
         if (closed) {
             log.info("Browser for profile '{}' closed successfully.", profileName);
@@ -210,7 +209,7 @@ public class BrowserService implements AutoCloseable {
         log.debug("User profile directory for profile '{}' is: {}", profile.getName(), profileDir);
         return profileDir;
     }
-    
+
     /**
      * 清理配置文件ID，移除可能的危险字符
      */
@@ -218,7 +217,7 @@ public class BrowserService implements AutoCloseable {
         if (profileId == null || profileId.trim().isEmpty()) {
             throw new IllegalArgumentException("Profile ID cannot be null or empty");
         }
-        
+
         // 移除路径分隔符和其他危险字符
         return profileId.replaceAll("[/\\:*?\"<>|]", "_").trim();
     }
@@ -233,6 +232,9 @@ public class BrowserService implements AutoCloseable {
         String browserPath = profile.getBrowserExecutablePath();
         if (browserPath == null || browserPath.isEmpty()) {
             browserPath = baseBrowserPath;
+        }
+        if (browserPath == null || browserPath.isBlank() || !new File(browserPath).exists()) {
+            throw new IllegalArgumentException("Browser executable path is not set or invalid");
         }
         command.add(browserPath);
 
@@ -255,7 +257,7 @@ public class BrowserService implements AutoCloseable {
             log.debug("Platform is set to '{}' in the profile, but this is primarily influenced by the User-Agent.", profile.getPlatform());
         }
 
-        // Timezone
+        // Timezone（注意：稳定版命令行不稳定，建议后续用扩展/CDP 实现）
         if (profile.getTimezone() != null && !profile.getTimezone().isEmpty()) {
             command.add("--force-timezone=" + profile.getTimezone());
         }
@@ -269,22 +271,21 @@ public class BrowserService implements AutoCloseable {
         }
 
         // Canvas and Font Fingerprinting (requires extension)
-        if (profile.getCanvasFingerprint() != null && !profile.getCanvasFingerprint().isEmpty()) {
-            log.warn("Canvas fingerprinting settings are present in the profile but cannot be applied via command-line arguments. An extension is required.");
+        if (profile.getCanvasFingerprint() != null) {
+            log.warn("Canvas fingerprinting settings are present but require an extension to apply.");
         }
-        if (profile.getFontFingerprint() != null && !profile.getFontFingerprint().isEmpty()) {
-            log.warn("Font fingerprinting settings are present in the profile but cannot be applied via command-line arguments. An extension is required.");
+        if (profile.getFontFingerprint() != null) {
+            log.warn("Font fingerprinting settings are present but require an extension to apply.");
         }
 
-        // WebRTC设置
-        Map<String, Object> webRTCSettings = profile.getWebRTCSettings();
-        if (webRTCSettings != null) {
-            if (webRTCSettings.containsKey("ipHandlingPolicy")) {
-                command.add("--webrtc-ip-handling-policy=" + webRTCSettings.get("ipHandlingPolicy"));
+        // WebRTC设置（注意：完全禁用需扩展/策略）
+        var webrtc = profile.getWebRTCSettings();
+        if (webrtc != null) {
+            if (webrtc.getIpHandlingPolicy() != null && !webrtc.getIpHandlingPolicy().isEmpty()) {
+                command.add("--webrtc-ip-handling-policy=" + webrtc.getIpHandlingPolicy());
             }
-            // 只有在明确禁用时才添加禁用参数
-            if (webRTCSettings.containsKey("enabled") && !(boolean) webRTCSettings.get("enabled")) {
-                command.add("--disable-webrtc");
+            if (!webrtc.isEnabled()) {
+                log.warn("Full WebRTC disabling is not supported via CLI; consider an extension or policy.");
             }
         }
 
@@ -296,24 +297,52 @@ public class BrowserService implements AutoCloseable {
             }
         }
 
-        // 基础Chrome参数 - 保持兼容性但不过度限制
+        // 基础Chrome参数 - 保持兼容性（可配置）
         command.add("--no-first-run");
         command.add("--no-default-browser-check");
         command.add("--disable-sync");
         command.add("--disable-default-apps");
-        command.add("--disable-extensions");
-        command.add("--disable-component-update");
-        command.add("--disable-background-networking");
-        
-        // 安全相关参数
-        command.add("--disable-features=VizDisplayCompositor");
-        command.add("--disable-ipc-flooding-protection");
-        
-        // 性能优化参数
-        command.add("--max_old_space_size=4096");
+        java.util.prefs.Preferences prefs = com.basis.fingerbrowser.util.AppPreferences.getNode();
+        if (prefs.getBoolean(com.basis.fingerbrowser.util.AppPreferences.DISABLE_EXTENSIONS_KEY, false)) {
+            command.add("--disable-extensions");
+        }
+        if (prefs.getBoolean(com.basis.fingerbrowser.util.AppPreferences.DISABLE_COMPONENT_UPDATE_KEY, true)) {
+            command.add("--disable-component-update");
+        }
+        if (prefs.getBoolean(com.basis.fingerbrowser.util.AppPreferences.DISABLE_BACKGROUND_NETWORKING_KEY, true)) {
+            command.add("--disable-background-networking");
+        }
+
+        // 移除影响稳定性的开关：--disable-features=VizDisplayCompositor, --disable-ipc-flooding-protection
+
+        // 性能优化参数（V8 需通过 --js-flags 传递）
+        if (prefs.getBoolean(com.basis.fingerbrowser.util.AppPreferences.V8_MEMORY_TWEAK_KEY, true)) {
+            command.add("--js-flags=--max_old_space_size=4096");
+        }
         command.add("--disable-renderer-backgrounding");
 
         return command;
+    }
+
+    /**
+     * 持续消费子进程输出，防止缓冲区阻塞
+     */
+    private void startProcessOutputGobbler(BrowserProfile profile, Process process) {
+        Runnable reader = () -> {
+            try (var in = process.getInputStream();
+                 var scanner = new java.util.Scanner(in)) {
+                scanner.useDelimiter("\n");
+                while (scanner.hasNext()) {
+                    String line = scanner.next();
+                    log.debug("[{}] {}", profile.getName(), line);
+                }
+            } catch (Exception e) {
+                if (!isShutdown.get()) {
+                    log.debug("Output gobbler stopped for profile '{}': {}", profile.getName(), e.getMessage());
+                }
+            }
+        };
+        monitoringExecutor.submit(reader);
     }
 
     /**
@@ -354,7 +383,7 @@ public class BrowserService implements AutoCloseable {
         if (isShutdown.get()) {
             return;
         }
-        
+
         monitoringExecutor.submit(() -> {
             try {
                 // 等待进程结束
@@ -387,11 +416,11 @@ public class BrowserService implements AutoCloseable {
      */
     public void closeAllBrowsers() {
         log.info("Closing all running browsers.");
-        
+
         // 创建副本避免并发修改
         Map<String, Process> browsersCopy = new HashMap<>(runningBrowsers);
-        
-        CompletableFuture<Void>[] closeFutures = browsersCopy.entrySet().stream()
+
+        CompletableFuture[] closeFutures = browsersCopy.entrySet().stream()
             .map(entry -> CompletableFuture.runAsync(() -> {
                 Process process = entry.getValue();
                 if (process != null && process.isAlive()) {
@@ -410,7 +439,7 @@ public class BrowserService implements AutoCloseable {
                 runningBrowsers.remove(entry.getKey());
             }, monitoringExecutor))
             .toArray(CompletableFuture[]::new);
-            
+
         try {
             CompletableFuture.allOf(closeFutures)
                 .get(DEFAULT_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -420,7 +449,7 @@ public class BrowserService implements AutoCloseable {
                 Thread.currentThread().interrupt();
             }
         }
-        
+
         log.info("All browsers closed.");
     }
 
@@ -428,15 +457,15 @@ public class BrowserService implements AutoCloseable {
         if (dirPath == null || dirPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Directory path cannot be null or empty");
         }
-        
+
         Path path = Paths.get(dirPath).toAbsolutePath().normalize();
-        
+
         // 安全检查：确保路径在基础数据目录内
         Path baseDir = Paths.get(baseDataDir).toAbsolutePath().normalize();
         if (!path.startsWith(baseDir)) {
             throw new SecurityException("Directory path must be within base data directory: " + dirPath);
         }
-        
+
         if (!Files.exists(path)) {
             try {
                 Files.createDirectories(path);
@@ -447,7 +476,7 @@ public class BrowserService implements AutoCloseable {
             }
         }
     }
-    
+
     /**
      * 验证浏览器配置文件
      */
@@ -462,33 +491,33 @@ public class BrowserService implements AutoCloseable {
             throw new IllegalArgumentException("Profile name cannot be null or empty");
         }
     }
-    
+
     /**
      * 获取正在运行的浏览器数量
      */
     public int getRunningBrowserCount() {
         return runningBrowsers.size();
     }
-    
+
     /**
      * 获取所有正在运行的浏览器ID列表
      */
     public Set<String> getRunningBrowserIds() {
         return new HashSet<>(runningBrowsers.keySet());
     }
-    
+
     @Override
     public void close() {
         if (!isShutdown.compareAndSet(false, true)) {
             return; // 已经关闭
         }
-        
+
         log.info("Shutting down BrowserService...");
-        
+
         try {
             // 关闭所有浏览器
             closeAllBrowsers();
-            
+
             // 关闭线程池
             monitoringExecutor.shutdown();
             if (!monitoringExecutor.awaitTermination(DEFAULT_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
@@ -499,7 +528,7 @@ public class BrowserService implements AutoCloseable {
             Thread.currentThread().interrupt();
             monitoringExecutor.shutdownNow();
         }
-        
+
         log.info("BrowserService shutdown complete");
     }
 }

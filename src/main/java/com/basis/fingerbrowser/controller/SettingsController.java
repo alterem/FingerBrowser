@@ -2,6 +2,7 @@ package com.basis.fingerbrowser.controller;
 
 import com.basis.fingerbrowser.service.ThemeService;
 import com.basis.fingerbrowser.util.DialogUtil;
+import com.basis.fingerbrowser.util.AppPreferences;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -15,6 +16,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import static com.basis.fingerbrowser.util.ToastUtil.showToast;
+
 /**
  * 设置页面控制器
  * 管理应用程序的各种设置，包括主题、浏览器路径等
@@ -24,10 +27,10 @@ public class SettingsController implements Initializable {
     private static final Logger logger = LoggerFactory.getLogger(SettingsController.class);
 
     // 偏好设置键 - 与MainController保持一致
-    private static final String BROWSER_PATH_KEY = "browser_path";
-    private static final String AUTO_SAVE_KEY = "auto_save";
-    private static final String CHECK_UPDATES_KEY = "check_updates";
-    private static final String LANGUAGE_KEY = "language";
+    private static final String BROWSER_PATH_KEY = AppPreferences.BROWSER_PATH_KEY;
+    private static final String AUTO_SAVE_KEY = AppPreferences.AUTO_SAVE_KEY;
+    private static final String CHECK_UPDATES_KEY = AppPreferences.CHECK_UPDATES_KEY;
+    private static final String LANGUAGE_KEY = AppPreferences.LANGUAGE_KEY;
 
     // FXML 控件
     @FXML private ComboBox<String> themeComboBox;
@@ -35,6 +38,11 @@ public class SettingsController implements Initializable {
     @FXML private TextField browserPathField;
     @FXML private CheckBox autoSaveCheckBox;
     @FXML private CheckBox checkUpdatesCheckBox;
+    // Launch flags
+    @FXML private CheckBox disableExtensionsCheckBox;
+    @FXML private CheckBox disableBackgroundNetworkingCheckBox;
+    @FXML private CheckBox disableComponentUpdateCheckBox;
+    @FXML private CheckBox v8MemoryTweakCheckBox;
 
     // 服务和工具
     private ThemeService themeService;
@@ -52,7 +60,7 @@ public class SettingsController implements Initializable {
         // 初始化服务
         themeService = ThemeService.getInstance();
         // 使用与MainController相同的Preferences节点
-        preferences = Preferences.userNodeForPackage(com.basis.fingerbrowser.controller.MainController.class);
+        preferences = AppPreferences.getNode();
 
         // 设置控件监听器
         setupControlListeners();
@@ -91,6 +99,11 @@ public class SettingsController implements Initializable {
         autoSaveCheckBox.setOnAction(e -> markAsChanged());
         checkUpdatesCheckBox.setOnAction(e -> markAsChanged());
         languageComboBox.setOnAction(e -> markAsChanged());
+        // Launch flags listeners
+        disableExtensionsCheckBox.setOnAction(e -> markAsChanged());
+        disableBackgroundNetworkingCheckBox.setOnAction(e -> markAsChanged());
+        disableComponentUpdateCheckBox.setOnAction(e -> markAsChanged());
+        v8MemoryTweakCheckBox.setOnAction(e -> markAsChanged());
     }
 
     /**
@@ -120,6 +133,11 @@ public class SettingsController implements Initializable {
             // 加载其他设置
             autoSaveCheckBox.setSelected(preferences.getBoolean(AUTO_SAVE_KEY, true));
             checkUpdatesCheckBox.setSelected(preferences.getBoolean(CHECK_UPDATES_KEY, false));
+            // 加载启动参数设置
+            disableExtensionsCheckBox.setSelected(preferences.getBoolean(AppPreferences.DISABLE_EXTENSIONS_KEY, false));
+            disableBackgroundNetworkingCheckBox.setSelected(preferences.getBoolean(AppPreferences.DISABLE_BACKGROUND_NETWORKING_KEY, true));
+            disableComponentUpdateCheckBox.setSelected(preferences.getBoolean(AppPreferences.DISABLE_COMPONENT_UPDATE_KEY, true));
+            v8MemoryTweakCheckBox.setSelected(preferences.getBoolean(AppPreferences.V8_MEMORY_TWEAK_KEY, true));
 
             // 加载语言设置
             String language = preferences.get(LANGUAGE_KEY, "简体中文");
@@ -202,6 +220,11 @@ public class SettingsController implements Initializable {
             preferences.putBoolean(AUTO_SAVE_KEY, autoSaveCheckBox.isSelected());
             preferences.putBoolean(CHECK_UPDATES_KEY, checkUpdatesCheckBox.isSelected());
             preferences.put(LANGUAGE_KEY, languageComboBox.getValue());
+            // 保存启动参数设置
+            preferences.putBoolean(AppPreferences.DISABLE_EXTENSIONS_KEY, disableExtensionsCheckBox.isSelected());
+            preferences.putBoolean(AppPreferences.DISABLE_BACKGROUND_NETWORKING_KEY, disableBackgroundNetworkingCheckBox.isSelected());
+            preferences.putBoolean(AppPreferences.DISABLE_COMPONENT_UPDATE_KEY, disableComponentUpdateCheckBox.isSelected());
+            preferences.putBoolean(AppPreferences.V8_MEMORY_TWEAK_KEY, v8MemoryTweakCheckBox.isSelected());
 
             // 刷新偏好设置
             preferences.flush();
@@ -209,8 +232,14 @@ public class SettingsController implements Initializable {
             // 重置变更标记
             hasChanges = false;
 
-            // 显示成功消息
-            showInfoAlert("设置已保存", "您的设置已成功保存并应用。");
+            // Toast 成功提示（优先主界面场景，确保根节点支持叠加）
+            if (mainController != null && mainController.getScene() != null) {
+                showToast(mainController.getScene(), "设置已保存");
+            } else if (stage != null && stage.getScene() != null) {
+                showToast(stage.getScene(), "设置已保存");
+            } else {
+                showInfoAlert("设置已保存", "您的设置已成功保存并应用。");
+            }
 
             logger.info("Settings applied successfully");
 

@@ -54,20 +54,20 @@ public class FingerprintGenerator {
         profile.setResolution(RESOLUTIONS[random.nextInt(RESOLUTIONS.length)]);
 
         // WebRTC设置
-        Map<String, Object> webRTCSettings = new HashMap<>();
-        webRTCSettings.put("enabled", random.nextBoolean());
-        webRTCSettings.put("ipHandlingPolicy", "default_public_interface_only");
+        var webRTCSettings = new com.basis.fingerbrowser.model.WebRTCSettings();
+        webRTCSettings.setEnabled(random.nextBoolean());
+        webRTCSettings.setIpHandlingPolicy("default_public_interface_only");
         profile.setWebRTCSettings(webRTCSettings);
 
         // Canvas指纹设置
-        Map<String, Object> canvasSettings = new HashMap<>();
-        canvasSettings.put("noise", random.nextDouble() * 10);
-        canvasSettings.put("spoof", random.nextBoolean());
+        var canvasSettings = new com.basis.fingerbrowser.model.CanvasSettings();
+        canvasSettings.setNoise(random.nextDouble() * 10);
+        canvasSettings.setSpoof(random.nextBoolean());
         profile.setCanvasFingerprint(canvasSettings);
 
         // 字体指纹
-        Map<String, Object> fontSettings = new HashMap<>();
-        fontSettings.put("spoof", random.nextBoolean());
+        var fontSettings = new com.basis.fingerbrowser.model.FontSettings();
+        fontSettings.setSpoof(random.nextBoolean());
         profile.setFontFingerprint(fontSettings);
 
         // 配置随机代理
@@ -114,12 +114,12 @@ public class FingerprintGenerator {
         derived.setResolution(base.getResolution());
 
         // 稍微修改一下Canvas指纹
-        Map<String, Object> canvasSettings = new HashMap<>(base.getCanvasFingerprint());
-        if (canvasSettings.containsKey("noise")) {
-            double noise = (double)canvasSettings.get("noise");
-            canvasSettings.put("noise", noise + (random.nextDouble() - 0.5));
+        var canvasSettings2 = new com.basis.fingerbrowser.model.CanvasSettings();
+        if (base.getCanvasFingerprint() != null) {
+            canvasSettings2.setNoise(base.getCanvasFingerprint().getNoise() + (random.nextDouble() - 0.5));
+            canvasSettings2.setSpoof(base.getCanvasFingerprint().isSpoof());
         }
-        derived.setCanvasFingerprint(canvasSettings);
+        derived.setCanvasFingerprint(canvasSettings2);
 
         // 可以选择使用相同的代理或更换
         if (base.getProxySettings() != null && random.nextBoolean()) {

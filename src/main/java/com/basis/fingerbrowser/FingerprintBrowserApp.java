@@ -1,6 +1,7 @@
 package com.basis.fingerbrowser;
 
 import com.basis.fingerbrowser.service.ThemeService;
+import com.basis.fingerbrowser.controller.MainController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -12,6 +13,7 @@ import javafx.stage.Stage;
 import java.util.Objects;
 
 public class FingerprintBrowserApp extends Application {
+    private MainController mainController;
     @Override
     public void start(Stage primaryStage) throws Exception {
         // macOS 特定设置
@@ -20,6 +22,7 @@ public class FingerprintBrowserApp extends Application {
         // 加载主界面
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
         Parent root = loader.load();
+        mainController = loader.getController();
 
         // 设置标题和图标
         primaryStage.setTitle("FingerprintBrowser");
@@ -54,8 +57,19 @@ public class FingerprintBrowserApp extends Application {
             // 注销场景
             themeService.unregisterScene(scene);
             Platform.exit();
-            System.exit(0);
+            // 移除 System.exit(0)，交由 JavaFX 生命周期和资源清理
         });
+    }
+
+    @Override
+    public void stop() throws Exception {
+        try {
+            if (mainController != null) {
+                mainController.onAppClose();
+            }
+        } finally {
+            super.stop();
+        }
     }
 
     /**

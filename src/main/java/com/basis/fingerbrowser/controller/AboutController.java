@@ -3,6 +3,7 @@ package com.basis.fingerbrowser.controller;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import java.awt.Desktop;
 import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
+import com.basis.fingerbrowser.util.DialogUtil;
 
 /**
  * 关于对话框控制器
@@ -18,8 +20,10 @@ import java.util.ResourceBundle;
 public class AboutController implements Initializable {
 
     private static final Logger logger = LoggerFactory.getLogger(AboutController.class);
+    private static final String LICENSE_URL = "https://github.com/alterem/fingerbrowser";
 
     @FXML private Hyperlink licenseLink;
+    @FXML private Label versionLabel;
 
     private Stage stage;
 
@@ -30,6 +34,10 @@ public class AboutController implements Initializable {
         // 设置超链接点击事件
         if (licenseLink != null) {
             licenseLink.setOnAction(e -> handleLicenseClick());
+        }
+        // 设置版本号
+        if (versionLabel != null) {
+            versionLabel.setText(com.basis.fingerbrowser.util.AppInfo.getVersion());
         }
         
         logger.info("AboutController initialized successfully");
@@ -57,19 +65,21 @@ public class AboutController implements Initializable {
      */
     private void handleLicenseClick() {
         try {
-            // 可以打开到具体的许可页面或 GitHub 仓库
-            String url = "https://github.com/fingerprintbrowser/fingerprintbrowser";
+            String url = LICENSE_URL;
             
             if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();
                 if (desktop.isSupported(Desktop.Action.BROWSE)) {
                     desktop.browse(new URI(url));
                     logger.info("Opened license URL: {}", url);
+                    return;
                 }
             }
+            // Fallback: show message with URL
+            DialogUtil.createInformationAlert("开源许可", "请在浏览器访问：\n" + url).showAndWait();
         } catch (Exception e) {
             logger.error("Failed to open license URL", e);
-            // 如果无法打开浏览器，可以显示一个消息框告知用户手动访问
+            DialogUtil.createInformationAlert("开源许可", "无法自动打开浏览器，请手动访问：\n" + LICENSE_URL).showAndWait();
         }
     }
 }

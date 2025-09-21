@@ -91,6 +91,18 @@
                 <VBox spacing="15.0" styleClass="settings-section">
                     <Label text="高级设置" styleClass="section-title"/>
                     
+                    <!-- 启动参数（可配置） -->
+                    <VBox spacing="8.0" styleClass="setting-item">
+                        <Label text="启动参数" styleClass="setting-label"/>
+                        <VBox spacing="6.0">
+                            <CheckBox fx:id="disableExtensionsCheckBox" text="禁用扩展（仅当不需要指纹扩展时）"/>
+                            <CheckBox fx:id="disableBackgroundNetworkingCheckBox" text="禁用后台网络（减少后台请求）"/>
+                            <CheckBox fx:id="disableComponentUpdateCheckBox" text="禁用组件更新（避免自动下载）"/>
+                            <CheckBox fx:id="v8MemoryTweakCheckBox" text="增加 V8 可用内存 (--js-flags=--max_old_space_size=4096)"/>
+                        </VBox>
+                        <Label text="这些选项会影响浏览器启动参数，若遇到兼容问题可在此调整" styleClass="setting-description"/>
+                    </VBox>
+
                     <!-- 自动保存设置 -->
                     <VBox spacing="8.0" styleClass="setting-item">
                         <Label text="自动保存" styleClass="setting-label"/>
@@ -104,7 +116,7 @@
                     <VBox spacing="8.0" styleClass="setting-item">
                         <Label text="更新检查" styleClass="setting-label"/>
                         <HBox spacing="10.0" alignment="CENTER_LEFT">
-                            <CheckBox fx:id="checkUpdatesCheckBox" text="启动时检查更新" disable="true"/>
+                            <CheckBox fx:id="checkUpdatesCheckBox" text="启动时检查更新"/>
                         </HBox>
                         <Label text="启动应用程序时自动检查是否有新版本（即将推出）" styleClass="setting-description"/>
                     </VBox>

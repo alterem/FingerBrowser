@@ -54,6 +54,12 @@ public class MainController {
     private Label runningCountLabel;
     @FXML
     private Label statusLabel;
+    @FXML
+    private Button topLaunchButton;
+    @FXML
+    private Button topStopButton;
+    @FXML
+    private Button leftLaunchButton;
 
     // --- Profile Details Fields ---
     @FXML
@@ -93,6 +99,8 @@ public class MainController {
     private FilteredList<BrowserProfile> filteredProfiles;
     private final ProfileViewModel profileViewModel = new ProfileViewModel();
     private Preferences preferences;
+    private final javafx.beans.property.BooleanProperty browserPathValid = new javafx.beans.property.SimpleBooleanProperty(false);
+    private java.util.concurrent.ExecutorService executor;
 
     private final StringProperty status = new SimpleStringProperty("就绪");
 
@@ -104,6 +112,13 @@ public class MainController {
         setupEventListeners();
         setupTheme();
         setupKeyboardShortcuts();
+        // 是否在启动时检查更新
+        boolean shouldCheckUpdates = java.util.prefs.Preferences.userRoot()
+                .node("/com/basis/fingerbrowser")
+                .getBoolean(com.basis.fingerbrowser.util.AppPreferences.CHECK_UPDATES_KEY, false);
+        if (shouldCheckUpdates) {
+            checkForUpdatesSilently();
+        }
         log.info("MainController initialization complete.");
     }
 
@@ -135,10 +150,32 @@ public class MainController {
         try {
             browserService = new BrowserService(browserPath, appDataDir + File.separator + BROWSER_DATA_DIR_NAME);
             log.info("Browser service initialized. Browser path: {}", browserPath);
+            boolean valid = browserPath != null && !browserPath.isBlank() && new File(browserPath).exists();
+            browserPathValid.set(valid);
+            if (!valid) {
+                Platform.runLater(() -> {
+                    setStatus("未检测到浏览器路径，请在设置中配置");
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "未检测到有效的浏览器路径，请前往设置进行配置。", ButtonType.OK, new ButtonType("打开设置", ButtonBar.ButtonData.YES));
+                    alert.setTitle("需要配置浏览器路径");
+                    alert.setHeaderText(null);
+                    alert.showAndWait().ifPresent(btn -> {
+                        if (btn.getButtonData() == ButtonBar.ButtonData.YES) {
+                            handleOpenSettings();
+                        }
+                    });
+                });
+            }
         } catch (RuntimeException e) {
             log.error("Failed to initialize browser service", e);
             showAlert("初始化错误", "无法初始化浏览器服务: " + e.getMessage());
         }
+
+        // 初始化后台执行器
+        executor = java.util.concurrent.Executors.newCachedThreadPool(r -> {
+            Thread t = new Thread(r, "ui-tasks");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     private void setupBindings() {
@@ -161,6 +198,10 @@ public class MainController {
 
         // Bind status label
         statusLabel.textProperty().bind(status);
+
+        // 根据浏览器路径有效性禁用启动按钮
+        if (topLaunchButton != null) topLaunchButton.disableProperty().bind(browserPathValid.not());
+        if (leftLaunchButton != null) leftLaunchButton.disableProperty().bind(browserPathValid.not());
     }
 
     private void setupEventListeners() {
@@ -254,16 +295,27 @@ public class MainController {
      * 更新浏览器路径（从设置页面调用）
      */
     public void updateBrowserPath(String browserPath) {
-        if (browserPath != null && browserService != null) {
-            browserService.setBrowserExecutablePath(browserPath);
-            // 保存到偏好设置
-            preferences.put(BROWSER_PATH_KEY, browserPath);
-            try {
-                preferences.flush();
-            } catch (Exception e) {
-                log.warn("Failed to save browser path to preferences", e);
+        if (browserService == null) return;
+        boolean valid = browserPath != null && !browserPath.isBlank() && new File(browserPath).exists();
+        try {
+            if (valid) {
+                browserService.setBrowserExecutablePath(browserPath);
+                // 保存到偏好设置
+                preferences.put(BROWSER_PATH_KEY, browserPath);
+                try {
+                    preferences.flush();
+                } catch (Exception e) {
+                    log.warn("Failed to save browser path to preferences", e);
+                }
+                browserPathValid.set(true);
+                log.info("Browser path updated: {}", browserPath);
+            } else {
+                browserPathValid.set(false);
+                showAlert("无效路径", "请选择有效的浏览器可执行文件路径。");
             }
-            log.info("Browser path updated: {}", browserPath);
+        } catch (IllegalArgumentException ex) {
+            browserPathValid.set(false);
+            showAlert("无效路径", ex.getMessage());
         }
     }
 
@@ -532,6 +584,10 @@ public class MainController {
         }
 
         setStatus("正在启动浏览器: " + selectedProfile.getName() + "...");
+        if (!browserPathValid.get()) {
+            showAlert("提示", "浏览器路径未配置或无效，请先前往设置配置。");
+            return;
+        }
         runTask(new Task<>() {
             @Override
             protected Boolean call() {
@@ -579,7 +635,11 @@ public class MainController {
             showAlert("错误", action + "任务失败: " + ex.getMessage());
             setStatus(action + "浏览器失败");
         });
-        new Thread(task).start();
+        if (executor != null) {
+            executor.submit(task);
+        } else {
+            new Thread(task).start();
+        }
     }
 
     @FXML
@@ -588,6 +648,62 @@ public class MainController {
         updateProfileCount();
         setStatus("已刷新列表");
         log.info("Profile list refreshed.");
+    }
+
+    @FXML
+    private void handleCheckUpdates() {
+        setStatus("正在检查更新...");
+        if (executor == null) {
+            executor = java.util.concurrent.Executors.newSingleThreadExecutor(r -> { Thread t = new Thread(r, "update-check"); t.setDaemon(true); return t; });
+        }
+        executor.submit(() -> {
+            String current = com.basis.fingerbrowser.util.AppInfo.getVersion();
+            // 重新请求 latest.json 原文以便解析 notes
+            java.util.Optional<String> latestOpt = com.basis.fingerbrowser.service.UpdateService.fetchLatestVersion();
+            Platform.runLater(() -> {
+                if (latestOpt.isEmpty()) {
+                    setStatus("检查更新失败或无网络");
+                    com.basis.fingerbrowser.util.ToastUtil.showToast(getScene(), "无法获取更新信息");
+                } else {
+                    String latest = latestOpt.get();
+                    if (com.basis.fingerbrowser.service.UpdateService.isNewer(latest, current)) {
+                        setStatus("有可用更新: " + latest);
+                        String notes = null;
+                        // 尝试再次读取 notes（可扩展：缓存 latest.json 原文）
+                        try {
+                            var client = java.net.http.HttpClient.newHttpClient();
+                            var req = java.net.http.HttpRequest.newBuilder(java.net.URI.create("https://raw.githubusercontent.com/alterem/fingerbrowser/main/latest.json")).GET().build();
+                            var resp = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString());
+                            if (resp.statusCode() == 200) {
+                                notes = com.basis.fingerbrowser.service.UpdateService.parseNotesFromJson(resp.body()).orElse(null);
+                            }
+                        } catch (Exception ignored) {}
+
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("更新提示");
+                        alert.setHeaderText("发现新版本 " + latest + "（当前 " + current + ")");
+                        String content = (notes != null && !notes.isBlank()) ? notes : "是否前往下载？";
+                        alert.setContentText(content);
+                        alert.getButtonTypes().setAll(
+                                new ButtonType("前往下载", ButtonBar.ButtonData.YES),
+                                new ButtonType("稍后", ButtonBar.ButtonData.CANCEL_CLOSE)
+                        );
+                        alert.showAndWait().ifPresent(btn -> {
+                            if (btn.getButtonData() == ButtonBar.ButtonData.YES) {
+                                try {
+                                    if (java.awt.Desktop.isDesktopSupported()) {
+                                        java.awt.Desktop.getDesktop().browse(new java.net.URI(com.basis.fingerbrowser.service.UpdateService.getReleasesUrl()));
+                                    }
+                                } catch (Exception ignored) { }
+                            }
+                        });
+                    } else {
+                        setStatus("已是最新版本");
+                        com.basis.fingerbrowser.util.ToastUtil.showToast(getScene(), "已是最新版本");
+                    }
+                }
+            });
+        });
     }
 
     /**
@@ -697,6 +813,47 @@ public class MainController {
         Platform.runLater(() -> status.set(message));
     }
 
+    /**
+     * 提供主界面的 Scene 以供外部展示 Toast 等
+     */
+    public Scene getScene() {
+        if (profileList != null) {
+            return profileList.getScene();
+        }
+        return null;
+    }
+
+    private void checkForUpdatesSilently() {
+        var current = com.basis.fingerbrowser.util.AppInfo.getVersion();
+        if (executor == null) {
+            executor = java.util.concurrent.Executors.newSingleThreadExecutor(r -> { Thread t = new Thread(r, "update-check"); t.setDaemon(true); return t; });
+        }
+        executor.submit(() -> {
+            var latestOpt = com.basis.fingerbrowser.service.UpdateService.fetchLatestVersion();
+            latestOpt.ifPresent(latest -> {
+                if (com.basis.fingerbrowser.service.UpdateService.isNewer(latest, current)) {
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                                "发现新版本 " + latest + "，当前版本 " + current + "。是否前往下载？",
+                                new ButtonType("前往下载", ButtonBar.ButtonData.YES),
+                                new ButtonType("稍后", ButtonBar.ButtonData.CANCEL_CLOSE));
+                        alert.setTitle("更新提示");
+                        alert.setHeaderText("有可用更新");
+                        alert.showAndWait().ifPresent(btn -> {
+                            if (btn.getButtonData() == ButtonBar.ButtonData.YES) {
+                                try {
+                                    if (java.awt.Desktop.isDesktopSupported()) {
+                                        java.awt.Desktop.getDesktop().browse(new java.net.URI(com.basis.fingerbrowser.service.UpdateService.getReleasesUrl()));
+                                    }
+                                } catch (Exception ignored) { }
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    }
+
     private void showAlert(String title, String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -705,5 +862,21 @@ public class MainController {
             alert.setContentText(message);
             alert.showAndWait();
         });
+    }
+
+    /**
+     * 应用即将关闭时的清理逻辑
+     */
+    public void onAppClose() {
+        try {
+            if (browserService != null) {
+                browserService.close();
+            }
+            if (executor != null) {
+                executor.shutdownNow();
+            }
+        } catch (Exception e) {
+            log.warn("Error while closing BrowserService", e);
+        }
     }
 }

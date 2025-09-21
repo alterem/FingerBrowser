@@ -52,7 +52,7 @@ public class ProfileViewModel {
 
         // WebRTC
         if (profile.getWebRTCSettings() != null) {
-            boolean enabled = profile.getWebRTCSettings().containsKey("enabled") && (boolean) profile.getWebRTCSettings().get("enabled");
+            boolean enabled = profile.getWebRTCSettings().isEnabled();
             webrtcStatus.set(enabled ? "已保护" : "未保护");
         } else {
             webrtcStatus.set("未配置");
@@ -60,7 +60,7 @@ public class ProfileViewModel {
 
         // Canvas
         if (profile.getCanvasFingerprint() != null) {
-            boolean spoof = profile.getCanvasFingerprint().containsKey("spoof") && (boolean) profile.getCanvasFingerprint().get("spoof");
+            boolean spoof = profile.getCanvasFingerprint().isSpoof();
             canvasStatus.set(spoof ? "已保护" : "未保护");
         } else {
             canvasStatus.set("未配置");
@@ -68,7 +68,7 @@ public class ProfileViewModel {
 
         // Font
         if (profile.getFontFingerprint() != null) {
-            boolean spoof = profile.getFontFingerprint().containsKey("spoof") && (boolean) profile.getFontFingerprint().get("spoof");
+            boolean spoof = profile.getFontFingerprint().isSpoof();
             fontStatus.set(spoof ? "已保护" : "未保护");
         } else {
             fontStatus.set("未配置");

@@ -10,14 +10,15 @@
 
     <top>
         <ToolBar>
-            <Button text="新建配置" onAction="#handleNewProfile"/>
-            <Button text="导入配置" onAction="#handleImportProfile"/>
-            <Button text="导出配置" onAction="#handleExportProfile"/>
+            <Button text="🆕 新建配置" onAction="#handleNewProfile"/>
+            <Button text="📥 导入配置" onAction="#handleImportProfile"/>
+            <Button text="📤 导出配置" onAction="#handleExportProfile"/>
             <Separator orientation="VERTICAL"/>
-            <Button text="启动所选" onAction="#handleLaunchSelected"/>
-            <Button text="停止所选" onAction="#handleStopSelected"/>
+            <Button fx:id="topLaunchButton" text="▶ 启动所选" onAction="#handleLaunchSelected"/>
+            <Button fx:id="topStopButton" text="⏹ 停止所选" onAction="#handleStopSelected"/>
             <Separator orientation="VERTICAL"/>
-            <Button text="刷新列表" onAction="#handleRefreshList"/>
+            <Button text="🔄 刷新列表" onAction="#handleRefreshList"/>
+            <Button text="🔔 检查更新" onAction="#handleCheckUpdates"/>
             <Separator orientation="VERTICAL"/>
             <Button text="⚙️ 设置" onAction="#handleOpenSettings" style="-fx-font-size: 12px;"/>
         </ToolBar>
@@ -31,9 +32,9 @@
             <Label text="浏览器配置" style="-fx-font-weight: bold"/>
             <TextField fx:id="searchField" promptText="搜索..."/>
             <HBox spacing="5.0">
-                <Button text="启动" onAction="#handleLaunchSelected" prefWidth="75.0"/>
-                <Button text="编辑" onAction="#handleEditProfile" prefWidth="75.0"/>
-                <Button text="删除" onAction="#handleDeleteProfile" prefWidth="75.0"/>
+                <Button fx:id="leftLaunchButton" text="▶ 启动" onAction="#handleLaunchSelected" prefWidth="75.0"/>
+                <Button text="✎ 编辑" onAction="#handleEditProfile" prefWidth="75.0"/>
+                <Button text="🗑 删除" onAction="#handleDeleteProfile" prefWidth="75.0"/>
             </HBox>
             <ListView fx:id="profileList" VBox.vgrow="ALWAYS"/>
             <HBox spacing="5.0">

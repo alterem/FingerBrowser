@@ -167,28 +167,22 @@ public class ProfileController {
 
         // WebRTC 设置
         if (profile.getWebRTCSettings() != null) {
-            Map<String, Object> webRTCSettings = profile.getWebRTCSettings();
-            webrtcEnabledCheckbox.setSelected(!webRTCSettings.containsKey("enabled") || (boolean) webRTCSettings.get("enabled"));
-
-            if (webRTCSettings.containsKey("ipHandlingPolicy")) {
-                webrtcPolicyCombo.setValue((String) webRTCSettings.get("ipHandlingPolicy"));
-            }
+            var webRTCSettings = profile.getWebRTCSettings();
+            webrtcEnabledCheckbox.setSelected(webRTCSettings.isEnabled());
+            webrtcPolicyCombo.setValue(webRTCSettings.getIpHandlingPolicy());
         }
 
         // Canvas 设置
         if (profile.getCanvasFingerprint() != null) {
-            Map<String, Object> canvasSettings = profile.getCanvasFingerprint();
-            canvasSpoofCheckbox.setSelected(!canvasSettings.containsKey("spoof") || (boolean) canvasSettings.get("spoof"));
-
-            if (canvasSettings.containsKey("noise")) {
-                canvasNoiseSlider.setValue((double) canvasSettings.get("noise"));
-            }
+            var canvasSettings = profile.getCanvasFingerprint();
+            canvasSpoofCheckbox.setSelected(canvasSettings.isSpoof());
+            canvasNoiseSlider.setValue(canvasSettings.getNoise());
         }
 
         // 字体设置
         if (profile.getFontFingerprint() != null) {
-            Map<String, Object> fontSettings = profile.getFontFingerprint();
-            fontSpoofCheckbox.setSelected(!fontSettings.containsKey("spoof") || (boolean) fontSettings.get("spoof"));
+            var fontSettings = profile.getFontFingerprint();
+            fontSpoofCheckbox.setSelected(fontSettings.isSpoof());
         }
 
         // 代理设置
@@ -348,22 +342,16 @@ public class ProfileController {
 
         // 更新WebRTC设置
         if (randomProfile.getWebRTCSettings() != null) {
-            Map<String, Object> webRTCSettings = randomProfile.getWebRTCSettings();
-            webrtcEnabledCheckbox.setSelected(!webRTCSettings.containsKey("enabled") || (boolean) webRTCSettings.get("enabled"));
-
-            if (webRTCSettings.containsKey("ipHandlingPolicy")) {
-                webrtcPolicyCombo.setValue((String) webRTCSettings.get("ipHandlingPolicy"));
-            }
+            var webRTCSettings = randomProfile.getWebRTCSettings();
+            webrtcEnabledCheckbox.setSelected(webRTCSettings.isEnabled());
+            webrtcPolicyCombo.setValue(webRTCSettings.getIpHandlingPolicy());
         }
 
         // 更新Canvas设置
         if (randomProfile.getCanvasFingerprint() != null) {
-            Map<String, Object> canvasSettings = randomProfile.getCanvasFingerprint();
-            canvasSpoofCheckbox.setSelected(!canvasSettings.containsKey("spoof") || (boolean) canvasSettings.get("spoof"));
-
-            if (canvasSettings.containsKey("noise")) {
-                canvasNoiseSlider.setValue((double) canvasSettings.get("noise"));
-            }
+            var canvasSettings = randomProfile.getCanvasFingerprint();
+            canvasSpoofCheckbox.setSelected(canvasSettings.isSpoof());
+            canvasNoiseSlider.setValue(canvasSettings.getNoise());
         }
 
         // 更新代理设置
@@ -408,20 +396,20 @@ public class ProfileController {
         profile.setBrowserExecutablePath(browserPathField.getText());
 
         // 更新WebRTC设置
-        Map<String, Object> webRTCSettings = new HashMap<>();
-        webRTCSettings.put("enabled", webrtcEnabledCheckbox.isSelected());
-        webRTCSettings.put("ipHandlingPolicy", webrtcPolicyCombo.getValue());
+        var webRTCSettings = new com.basis.fingerbrowser.model.WebRTCSettings();
+        webRTCSettings.setEnabled(webrtcEnabledCheckbox.isSelected());
+        webRTCSettings.setIpHandlingPolicy(webrtcPolicyCombo.getValue());
         profile.setWebRTCSettings(webRTCSettings);
 
         // 更新Canvas设置
-        Map<String, Object> canvasSettings = new HashMap<>();
-        canvasSettings.put("spoof", canvasSpoofCheckbox.isSelected());
-        canvasSettings.put("noise", canvasNoiseSlider.getValue());
+        var canvasSettings = new com.basis.fingerbrowser.model.CanvasSettings();
+        canvasSettings.setSpoof(canvasSpoofCheckbox.isSelected());
+        canvasSettings.setNoise(canvasNoiseSlider.getValue());
         profile.setCanvasFingerprint(canvasSettings);
 
         // 更新字体设置
-        Map<String, Object> fontSettings = new HashMap<>();
-        fontSettings.put("spoof", fontSpoofCheckbox.isSelected());
+        var fontSettings = new com.basis.fingerbrowser.model.FontSettings();
+        fontSettings.setSpoof(fontSpoofCheckbox.isSelected());
         profile.setFontFingerprint(fontSettings);
 
         // 更新代理设置

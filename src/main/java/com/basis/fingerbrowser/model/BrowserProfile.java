@@ -1,5 +1,7 @@
 package com.basis.fingerbrowser.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,9 +12,9 @@ public class BrowserProfile {
     private String name;
     private String userAgent;
     private String platform;
-    private Map<String, Object> webRTCSettings;
-    private Map<String, Object> canvasFingerprint;
-    private Map<String, Object> fontFingerprint;
+    private WebRTCSettings webRTCSettings;
+    private CanvasSettings canvasFingerprint;
+    private FontSettings fontFingerprint;
     private ProxySettings proxySettings;
     private Map<String, String> cookies;
     private Map<String, String> localStorage;
@@ -20,11 +22,14 @@ public class BrowserProfile {
     private String language;
     private String timezone;
     private String resolution;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime lastUsed;
     private String notes;
     private String browserExecutablePath;
     private String userDataDir;
+    @JsonIgnore
     private boolean active;
     private ProxyConfiguration proxyConfiguration;
 
@@ -32,9 +37,9 @@ public class BrowserProfile {
         this.id = UUID.randomUUID().toString();
         this.createdAt = LocalDateTime.now();
         this.lastUsed = LocalDateTime.now();
-        this.webRTCSettings = new HashMap<>();
-        this.canvasFingerprint = new HashMap<>();
-        this.fontFingerprint = new HashMap<>();
+        this.webRTCSettings = new WebRTCSettings();
+        this.canvasFingerprint = new CanvasSettings();
+        this.fontFingerprint = new FontSettings();
         this.cookies = new HashMap<>();
         this.localStorage = new HashMap<>();
         this.customHeaders = new HashMap<>();
@@ -46,9 +51,9 @@ public class BrowserProfile {
         this.name = name;
         this.createdAt = createdAt;
         this.lastUsed = LocalDateTime.now();
-        this.webRTCSettings = new HashMap<>();
-        this.canvasFingerprint = new HashMap<>();
-        this.fontFingerprint = new HashMap<>();
+        this.webRTCSettings = new WebRTCSettings();
+        this.canvasFingerprint = new CanvasSettings();
+        this.fontFingerprint = new FontSettings();
         this.cookies = new HashMap<>();
         this.localStorage = new HashMap<>();
         this.customHeaders = new HashMap<>();
@@ -84,27 +89,27 @@ public class BrowserProfile {
         this.platform = platform;
     }
 
-    public Map<String, Object> getWebRTCSettings() {
+    public WebRTCSettings getWebRTCSettings() {
         return webRTCSettings;
     }
 
-    public void setWebRTCSettings(Map<String, Object> webRTCSettings) {
+    public void setWebRTCSettings(WebRTCSettings webRTCSettings) {
         this.webRTCSettings = webRTCSettings;
     }
 
-    public Map<String, Object> getCanvasFingerprint() {
+    public CanvasSettings getCanvasFingerprint() {
         return canvasFingerprint;
     }
 
-    public void setCanvasFingerprint(Map<String, Object> canvasFingerprint) {
+    public void setCanvasFingerprint(CanvasSettings canvasFingerprint) {
         this.canvasFingerprint = canvasFingerprint;
     }
 
-    public Map<String, Object> getFontFingerprint() {
+    public FontSettings getFontFingerprint() {
         return fontFingerprint;
     }
 
-    public void setFontFingerprint(Map<String, Object> fontFingerprint) {
+    public void setFontFingerprint(FontSettings fontFingerprint) {
         this.fontFingerprint = fontFingerprint;
     }
 

@@ -38,7 +38,7 @@
                 <Label text="版本信息" styleClass="section-header"/>
                 <HBox spacing="10.0">
                     <Label text="版本:" styleClass="info-label"/>
-                    <Label text="1.0.0" styleClass="info-value"/>
+                    <Label fx:id="versionLabel" text="" styleClass="info-value"/>
                 </HBox>
                 <HBox spacing="10.0">
                     <Label text="构建日期:" styleClass="info-label"/>
@@ -81,7 +81,7 @@
                 </padding>
                 <Label text="© 2025 FingerprintBrowser" styleClass="copyright"/>
                 <Label text="•" styleClass="separator-dot"/>
-                <Hyperlink text="开源许可" styleClass="link"/>
+                <Hyperlink fx:id="licenseLink" text="开源许可" styleClass="link"/>
             </HBox>
             <HBox alignment="CENTER_RIGHT">
                 <padding>

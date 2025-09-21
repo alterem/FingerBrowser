@@ -9,6 +9,7 @@ module com.basis.fingerbrowser {
     requires java.logging;
     requires org.slf4j;
     requires java.prefs;
+    requires java.net.http;
 
     // 导出包给 FXML 加载器
     exports com.basis.fingerbrowser to javafx.graphics;

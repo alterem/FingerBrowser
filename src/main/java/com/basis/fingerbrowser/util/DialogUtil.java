@@ -4,7 +4,6 @@ import com.basis.fingerbrowser.service.ThemeService;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogPane;
 import javafx.scene.paint.Color;
-import javafx.stage.StageStyle;
 
 public class DialogUtil {
 
@@ -36,16 +35,8 @@ public class DialogUtil {
     }
 
     private static void applyTheme(Alert alert) {
-        // Remove default window decorations for a modern, borderless look
-        alert.initStyle(StageStyle.TRANSPARENT);
-
         DialogPane dialogPane = alert.getDialogPane();
         ThemeService themeService = ThemeService.getInstance();
-
-        // Defer setting the scene's background until it's available
-        alert.setOnShowing(event -> {
-            dialogPane.getScene().setFill(Color.TRANSPARENT);
-        });
 
         // Remove existing theme classes to prevent conflicts
         dialogPane.getStyleClass().removeAll("dark-theme", "light-theme");
@@ -56,7 +47,7 @@ public class DialogUtil {
             dialogPane.getStylesheets().add(cssPath);
         }
 
-        // Apply the current theme class
+        // Apply the current theme class to dialog pane
         dialogPane.getStyleClass().add(themeService.getCurrentTheme() + "-theme");
     }
 }
